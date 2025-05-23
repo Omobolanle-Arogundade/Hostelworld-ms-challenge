@@ -5,10 +5,14 @@ import { PaginatedResponseDto } from 'src/common/dtos/paginated-response.dto';
 import { Record } from './record.schema';
 import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';
+import { CacheService } from '../shared/cache.service';
 
 @Injectable()
 export class RecordService {
-  constructor(private readonly recordRepo: RecordRepository) {}
+  constructor(
+    private readonly recordRepo: RecordRepository,
+    private readonly cacheService: CacheService,
+  ) {}
 
   /**
    *
@@ -20,9 +24,18 @@ export class RecordService {
   async findAll(
     query: FilterRecordsQueryDto,
   ): Promise<PaginatedResponseDto<Record>> {
+    const cacheKey = JSON.stringify(query);
+
+    const cached =
+      this.cacheService.get<PaginatedResponseDto<Record>>(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
     const [data, total] = await this.recordRepo.findAll(query);
 
-    return {
+    const result = {
       data,
       meta: {
         total,
@@ -31,6 +44,10 @@ export class RecordService {
         totalPages: Math.ceil(total / (query.limit ?? 10)),
       },
     };
+
+    this.cacheService.set(cacheKey, result);
+
+    return result;
   }
 
   /**
@@ -39,7 +56,9 @@ export class RecordService {
    * @returns The created record
    */
   async create(payload: CreateRecordRequestDto): Promise<Record> {
-    return this.recordRepo.create(payload);
+    const record = await this.recordRepo.create(payload);
+    this.cacheService.clear();
+    return record;
   }
 
   /**
@@ -56,6 +75,7 @@ export class RecordService {
       throw new NotFoundException(`Record with id ${id} not found`);
     }
     await this.recordRepo.update(id, payload);
+    this.cacheService.clear();
     return { ...existing.toObject(), ...payload };
   }
 
