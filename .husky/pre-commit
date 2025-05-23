@@ -1,0 +1,22 @@
+echo "Running linters on staged files..."
+npx lint-staged
+LINT_STAGED_EXIT_CODE=$?
+
+if [ $LINT_STAGED_EXIT_CODE -ne 0 ]; then
+  echo "Lint-staged failed. Aborting commit."
+  exit 1
+fi
+
+echo "Linters passed. Running tests..."
+
+# Run tests
+npm run test && npm run test:e2e
+TESTS_EXIT_CODE=$?
+
+if [ $TESTS_EXIT_CODE -ne 0 ]; then
+  echo "Tests failed. Aborting commit."
+  exit 1
+fi
+
+echo "Linters and tests passed. Commit allowed."
+exit 0
