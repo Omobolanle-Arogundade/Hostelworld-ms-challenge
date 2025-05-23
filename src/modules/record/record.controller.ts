@@ -9,12 +9,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Record } from '../schemas/record.schema';
+import { Record } from './record.schema';
 import { Model } from 'mongoose';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { CreateRecordRequestDTO } from '../dtos/create-record.request.dto';
-import { RecordCategory, RecordFormat } from '../schemas/record.enum';
-import { UpdateRecordRequestDTO } from '../dtos/update-record.request.dto';
+import { CreateRecordRequestDTO } from './dtos/create-record.request.dto';
+import { RecordCategory, RecordFormat } from './record.enum';
+import { UpdateRecordRequestDTO } from './dtos/update-record.request.dto';
 
 @Controller('records')
 export class RecordController {
