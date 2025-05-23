@@ -10,7 +10,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { RecordFormat, RecordCategory } from '../record.enum';
 
-export class UpdateRecordRequestDTO {
+export class UpdateRecordRequestDto {
   @ApiProperty({
     description: 'Artist of the record',
     type: String,

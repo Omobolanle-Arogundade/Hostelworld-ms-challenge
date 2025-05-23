@@ -31,8 +31,10 @@ export class Record extends Document {
   @Prop({ required: false })
   mbid?: string;
 
-  @Prop({ required: false })
-  tracklist?: string[];
+  @Prop({ type: [String], default: [] })
+  tracklist: string[];
 }
 
 export const RecordSchema = SchemaFactory.createForClass(Record);
+
+RecordSchema.index({ artist: 1, category: 1, format: 1 }); // Compound index for artist, category, and format
