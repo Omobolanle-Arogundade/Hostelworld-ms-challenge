@@ -1,0 +1,20 @@
+<metadata>
+  <release>
+    <medium-list>
+      <medium>
+        <track-list>
+          <track>
+            <recording>
+              <title>Track One</title>
+            </recording>
+          </track>
+          <track>
+            <recording>
+              <title>Track Two</title>
+            </recording>
+          </track>
+        </track-list>
+      </medium>
+    </medium-list>
+  </release>
+</metadata>

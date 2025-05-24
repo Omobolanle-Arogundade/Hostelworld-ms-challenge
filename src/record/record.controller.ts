@@ -39,6 +39,14 @@ export class RecordController {
     description: 'List of records',
     type: [Record],
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid query parameters',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+  })
   async findAll(
     @Query() query: FilterRecordsQueryDto,
   ): Promise<PaginatedResponseDto<Record>> {

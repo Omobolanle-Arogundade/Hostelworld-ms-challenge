@@ -3,6 +3,7 @@ import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { CacheService } from '../shared/cache.service';
 
+const CACHE_TTL = 60 * 60 * 12; // 12 hours
 @Injectable()
 export class MusicbrainzService {
   constructor(private readonly cacheService: CacheService) {}
@@ -42,11 +43,11 @@ export class MusicbrainzService {
         ? tracks.map((t) => t?.recording?.title || 'Unknown Track')
         : [tracks.recording?.title || 'Unknown Track'];
 
-      this.cacheService.set(cacheKey, result, 60 * 60 * 12);
+      this.cacheService.set(cacheKey, result, CACHE_TTL);
 
       return result;
     } catch (error) {
-      this.logger.warn(`Failed to fetch from MBID ${mbid}: ${error.message}`);
+      this.logger.error(`Failed to fetch from MBID ${mbid}: ${error.message}`);
       return [];
     }
   }

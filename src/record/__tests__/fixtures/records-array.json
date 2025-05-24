@@ -1,0 +1,29 @@
+[
+  {
+    "artist": "Sisters of Mercy",
+    "album": "First and Last and Always",
+    "price": 20,
+    "qty": 3,
+    "format": "Vinyl",
+    "category": "Alternative",
+    "mbid": "63823c15-6abc-473e-9fad-d0d0fa983b34"
+  },
+  {
+    "artist": "Joy Division",
+    "album": "Unknown Pleasures",
+    "price": 25,
+    "qty": 10,
+    "format": "CD",
+    "category": "Alternative",
+    "mbid": "3dd3e849-5830-429a-ac81-75054fe1d720"
+  },
+  {
+    "artist": "Chameleons",
+    "album": "Script of the Bridge",
+    "price": 18,
+    "qty": 2,
+    "format": "Vinyl",
+    "category": "Alternative",
+    "mbid": "21c47b6a-4c66-32ea-b67d-0987ba2a0a59"
+  }
+]
