@@ -1,0 +1,51 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { ClientSession, Model } from 'mongoose';
+import { Order } from './order.schema';
+
+@Injectable()
+export class OrderRepository {
+  constructor(
+    @InjectModel('Order') private readonly orderModel: Model<Order>,
+  ) {}
+
+  /**
+   * @param payload Order payload
+   * @param session Mongoose client session for transaction support
+   * @description This method creates a new order in the database.
+   * @returns The created order
+   */
+  async create(
+    payload: Partial<Order>,
+    session: ClientSession,
+  ): Promise<Order> {
+    const [order] = await this.orderModel.create([payload], { session });
+    return order;
+  }
+
+  /**
+   * @param fn Function to execute within a transaction
+   * @description This method executes a function within a MongoDB transaction.
+   * It starts a session, begins a transaction, and commits or aborts the transaction based on the function's success or failure.
+   * If the function throws an error, the transaction is aborted.
+   * If the function completes successfully, the transaction is committed.
+   * @returns The result of the function executed within the transaction
+   */
+  async withTransaction<T>(
+    fn: (session: ClientSession) => Promise<T>,
+  ): Promise<T> {
+    const session = await this.orderModel.db.startSession();
+    session.startTransaction();
+
+    try {
+      const result = await fn(session);
+      await session.commitTransaction();
+      return result;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
+    }
+  }
+}

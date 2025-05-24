@@ -83,7 +83,7 @@ export class RecordService {
   async update(id: string, payload: UpdateRecordRequestDto) {
     const existing = await this.recordRepo.findById(id);
     if (!existing) {
-      throw new NotFoundException(`Record with id ${id} not found`);
+      throw new NotFoundException(`Record with id ${id} not found!!`);
     }
 
     let tracklist = existing.tracklist;

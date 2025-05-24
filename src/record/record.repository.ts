@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { Record } from './record.schema';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
 import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
@@ -57,10 +57,11 @@ export class RecordRepository {
   /**
    * @param id id of the record to update
    * @param data Data to update
+   * @param session Mongoose client session for transaction support
    * @description This method updates an existing record in the database.
    */
-  async update(id: string, data: Partial<Record>) {
-    return this.recordModel.updateOne({ _id: id }, data).exec();
+  async update(id: string, data: Partial<Record>, session?: ClientSession) {
+    return this.recordModel.updateOne({ _id: id }, data, { session }).exec();
   }
 
   /**

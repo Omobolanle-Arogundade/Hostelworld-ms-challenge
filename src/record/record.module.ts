@@ -18,5 +18,6 @@ import { MusicbrainzService } from './musicbrainz.service';
     CacheService,
     MusicbrainzService,
   ],
+  exports: [RecordRepository],
 })
 export class RecordModule {}

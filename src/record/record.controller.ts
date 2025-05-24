@@ -2,13 +2,14 @@ import { Controller, Get, Post, Body, Param, Query, Put } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Record } from './record.schema';
 import { Model } from 'mongoose';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';
 import { RecordService } from './record.service';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from 'src/common/dtos/paginated-response.dto';
 
+@ApiTags('Records')
 @Controller('records')
 export class RecordController {
   constructor(
