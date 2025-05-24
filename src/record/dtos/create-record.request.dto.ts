@@ -7,6 +7,7 @@ import {
   IsInt,
   IsEnum,
   IsOptional,
+  IsArray,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { RecordFormat, RecordCategory } from '../record.enum';
@@ -75,4 +76,14 @@ export class CreateRecordRequestDto {
   })
   @IsOptional()
   mbid?: string;
+
+  @ApiProperty({
+    description: 'Tracklist of the record',
+    type: [String],
+    example: ['Come Dance', 'Level Up', 'Dancing Dragons'],
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  tracklist?: string[];
 }

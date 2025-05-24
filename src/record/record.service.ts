@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RecordRepository } from './record.repository';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from 'src/common/dtos/paginated-response.dto';
@@ -6,12 +6,16 @@ import { Record } from './record.schema';
 import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';
 import { CacheService } from '../shared/cache.service';
+import { MusicbrainzService } from './musicbrainz.service';
 
 @Injectable()
 export class RecordService {
+  private readonly logger: Logger = new Logger(RecordService.name);
+
   constructor(
     private readonly recordRepo: RecordRepository,
     private readonly cacheService: CacheService,
+    private readonly musicbrainz: MusicbrainzService,
   ) {}
 
   /**
@@ -24,14 +28,17 @@ export class RecordService {
   async findAll(
     query: FilterRecordsQueryDto,
   ): Promise<PaginatedResponseDto<Record>> {
-    const cacheKey = JSON.stringify(query);
+    const cacheKey = `records::${JSON.stringify(query)}`;
 
     const cached =
       this.cacheService.get<PaginatedResponseDto<Record>>(cacheKey);
 
     if (cached) {
+      this.logger.debug(`Cache hit for query: ${cacheKey}`);
       return cached;
     }
+
+    this.logger.debug(`Fetching records for query: ${cacheKey}`);
 
     const [data, total] = await this.recordRepo.findAll(query);
 
@@ -56,8 +63,12 @@ export class RecordService {
    * @returns The created record
    */
   async create(payload: CreateRecordRequestDto): Promise<Record> {
-    const record = await this.recordRepo.create(payload);
-    this.cacheService.clear();
+    const tracklist = payload.mbid
+      ? await this.musicbrainz.fetchTracklistByMbid(payload.mbid)
+      : [];
+
+    const record = await this.recordRepo.create({ ...payload, tracklist });
+    this.cacheService.clearByPrefix('records::'); // Clear records cache after creation
     return record;
   }
 
@@ -74,9 +85,16 @@ export class RecordService {
     if (!existing) {
       throw new NotFoundException(`Record with id ${id} not found`);
     }
-    await this.recordRepo.update(id, payload);
-    this.cacheService.clear();
-    return { ...existing.toObject(), ...payload };
+
+    let tracklist = existing.tracklist;
+
+    if (payload.mbid && payload.mbid !== existing.mbid) {
+      tracklist = await this.musicbrainz.fetchTracklistByMbid(payload.mbid);
+    }
+
+    await this.recordRepo.update(id, { ...payload, tracklist });
+    this.cacheService.clearByPrefix('records::'); // Clear records cache after update
+    return { ...existing.toObject(), ...payload, tracklist };
   }
 
   /**
