@@ -5,6 +5,7 @@ import { Order } from '../order.schema';
 import { OrderService } from '../order.service';
 import { OrderRepository } from '../order.repository';
 import { OrderController } from '../order.controller';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 describe('OrderModule', () => {
   let module: TestingModule;
@@ -14,6 +15,14 @@ describe('OrderModule', () => {
       imports: [
         OrderModule,
         MongooseModule.forFeature([{ name: 'Order', schema: Order }]),
+        ThrottlerModule.forRoot({
+          throttlers: [
+            {
+              ttl: 60000,
+              limit: 10,
+            },
+          ],
+        }),
       ],
     })
       .overrideProvider(getModelToken('Order'))

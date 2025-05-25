@@ -8,6 +8,7 @@ import { MusicbrainzService } from '../musicbrainz.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RecordSchema } from '../record.schema';
 import { getModelToken } from '@nestjs/mongoose';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 describe('RecordModule', () => {
   let module: TestingModule;
@@ -17,6 +18,14 @@ describe('RecordModule', () => {
       imports: [
         RecordModule,
         MongooseModule.forFeature([{ name: 'Record', schema: RecordSchema }]),
+        ThrottlerModule.forRoot({
+          throttlers: [
+            {
+              ttl: 60000,
+              limit: 10,
+            },
+          ],
+        }),
       ],
     })
       .overrideProvider(getModelToken('Record'))

@@ -8,6 +8,7 @@ import { Record } from '../record.schema';
 import { UpdateRecordRequestDto } from '../dtos/update-record.request.dto';
 import { FilterRecordsQueryDto } from '../dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from '../../common/dtos/paginated-response.dto';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 describe('RecordController', () => {
   let controller: RecordController;
@@ -23,6 +24,16 @@ describe('RecordController', () => {
     controller = new RecordController(null, service);
 
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ThrottlerModule.forRoot({
+          throttlers: [
+            {
+              ttl: 60000,
+              limit: 10,
+            },
+          ],
+        }),
+      ],
       controllers: [RecordController],
       providers: [
         {

@@ -1,14 +1,19 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { Order } from './order.schema';
+import { CustomThrottlerGuard } from '../common/guards/custom-throttler.guard';
 
 @ApiTags('Orders')
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @UseGuards(CustomThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post()
   @ApiOperation({ summary: 'Create a new order' })
   @ApiBody({ type: CreateOrderDto })

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Query, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Record } from './record.schema';
 import { Model } from 'mongoose';
@@ -16,6 +25,8 @@ import { RecordService } from './record.service';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from '../common/dtos/paginated-response.dto';
 import { RecordCategory, RecordFormat } from './record.enum';
+import { Throttle } from '@nestjs/throttler';
+import { CustomThrottlerGuard } from '../common/guards/custom-throttler.guard';
 
 @ApiTags('Records')
 @Controller('records')
@@ -52,6 +63,8 @@ export class RecordController {
     return this.recordService.update(id, dto);
   }
 
+  @UseGuards(CustomThrottlerGuard)
+  @Throttle({ default: { limit: 2, ttl: 60000 } })
   @Get()
   @ApiOperation({
     summary: 'Get all records with optional filters and pagination',
