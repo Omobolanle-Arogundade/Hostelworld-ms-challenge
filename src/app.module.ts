@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfig } from './app.config';
 import { OrderModule } from './order/order.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { MetricsController } from './common/metrics/metrics.controller';
+import { MetricsService } from './common/metrics/metrics.service';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       ],
     }),
   ],
-  controllers: [],
-  providers: [],
+  controllers: [MetricsController],
+  providers: [MetricsService],
 })
 export class AppModule {}
