@@ -13,7 +13,6 @@ import { RecordFormat, RecordCategory } from '../record.enum';
 export class UpdateRecordRequestDto {
   @ApiProperty({
     description: 'Artist of the record',
-    type: String,
     example: 'The Beatles',
     required: false,
   })
@@ -23,7 +22,6 @@ export class UpdateRecordRequestDto {
 
   @ApiProperty({
     description: 'Album name',
-    type: String,
     example: 'Abbey Road',
     required: false,
   })
@@ -33,8 +31,9 @@ export class UpdateRecordRequestDto {
 
   @ApiProperty({
     description: 'Price of the record',
-    type: Number,
     example: 30,
+    minimum: 0,
+    maximum: 10000,
     required: false,
   })
   @IsNumber()
@@ -45,8 +44,9 @@ export class UpdateRecordRequestDto {
 
   @ApiProperty({
     description: 'Quantity of the record in stock',
-    type: Number,
-    example: 1000,
+    example: 10,
+    minimum: 0,
+    maximum: 100,
     required: false,
   })
   @IsInt()
@@ -77,10 +77,10 @@ export class UpdateRecordRequestDto {
 
   @ApiProperty({
     description: 'Musicbrainz identifier',
-    type: String,
     example: 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d',
     required: false,
   })
   @IsOptional()
+  @IsString()
   mbid?: string;
 }

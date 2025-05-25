@@ -35,6 +35,8 @@ export class CreateRecordRequestDto {
     description: 'Price of the record',
     type: Number,
     example: 30,
+    minimum: 0,
+    maximum: 10000,
   })
   @IsNumber()
   @Min(0)
@@ -44,7 +46,9 @@ export class CreateRecordRequestDto {
   @ApiProperty({
     description: 'Quantity of the record in stock',
     type: Number,
-    example: 1000,
+    example: 10,
+    minimum: 0,
+    maximum: 100,
   })
   @IsInt()
   @Min(0)
@@ -55,15 +59,17 @@ export class CreateRecordRequestDto {
     description: 'Format of the record (Vinyl, CD, etc.)',
     enum: RecordFormat,
     example: RecordFormat.VINYL,
+    required: true,
   })
   @IsEnum(RecordFormat)
   @IsNotEmpty()
   format: RecordFormat;
 
   @ApiProperty({
-    description: 'Category or genre of the record (e.g., Rock, Jazz)',
+    description: 'Genre or category of the record',
     enum: RecordCategory,
     example: RecordCategory.ROCK,
+    required: true,
   })
   @IsEnum(RecordCategory)
   @IsNotEmpty()
@@ -71,16 +77,18 @@ export class CreateRecordRequestDto {
 
   @ApiProperty({
     description: 'Musicbrainz identifier',
-    type: String,
     example: 'b10bbbfc-cf9e-42e0-be17-e2c3e1d2600d',
+    required: false,
   })
   @IsOptional()
+  @IsString()
   mbid?: string;
 
   @ApiProperty({
     description: 'Tracklist of the record',
     type: [String],
     example: ['Come Dance', 'Level Up', 'Dancing Dragons'],
+    required: false,
   })
   @IsArray()
   @IsString({ each: true })

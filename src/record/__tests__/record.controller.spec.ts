@@ -7,7 +7,7 @@ import { RecordCategory, RecordFormat } from '../record.enum';
 import { Record } from '../record.schema';
 import { UpdateRecordRequestDto } from '../dtos/update-record.request.dto';
 import { FilterRecordsQueryDto } from '../dtos/filter-records.query.dto';
-import { PaginatedResponseDto } from 'src/common/dtos/paginated-response.dto';
+import { PaginatedResponseDto } from '../../common/dtos/paginated-response.dto';
 
 describe('RecordController', () => {
   let controller: RecordController;

@@ -6,6 +6,7 @@ export class CreateOrderDto {
     description: 'ID of the record being ordered',
     type: String,
     example: '60d5ec49f1b2c8a3f8e4b0a1',
+    required: true,
   })
   @IsMongoId()
   recordId: string;
@@ -14,6 +15,7 @@ export class CreateOrderDto {
     description: 'Quantity of the record being ordered',
     type: Number,
     example: 2,
+    required: true,
   })
   @IsInt()
   @Min(1)

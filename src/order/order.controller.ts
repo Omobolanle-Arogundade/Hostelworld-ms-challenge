@@ -1,7 +1,8 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dtos/create-order.dto';
+import { Order } from './order.schema';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -10,11 +11,19 @@ export class OrderController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new order' })
-  @ApiResponse({ status: 201, description: 'Record created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiBody({ type: CreateOrderDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Order created successfully',
+    type: Order,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid payload or insufficient stock',
+  })
   @ApiResponse({ status: 404, description: 'Record not found' })
-  @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async create(@Body() dto: CreateOrderDto) {
+  @ApiResponse({ status: 500, description: 'Internal server error' })
+  async create(@Body() dto: CreateOrderDto): Promise<Order> {
     return this.orderService.createOrder(dto);
   }
 }
