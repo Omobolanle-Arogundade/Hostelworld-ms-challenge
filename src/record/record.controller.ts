@@ -103,7 +103,7 @@ export class RecordController {
     description: 'Paginated list of records',
     type: PaginatedResponseDto,
   })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findAll(
     @Query() query: FilterRecordsQueryDto,
   ): Promise<PaginatedResponseDto<Record>> {

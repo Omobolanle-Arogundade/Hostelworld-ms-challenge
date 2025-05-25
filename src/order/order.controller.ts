@@ -22,7 +22,7 @@ export class OrderController {
     description: 'Invalid payload or insufficient stock',
   })
   @ApiResponse({ status: 404, description: 'Record not found' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async create(@Body() dto: CreateOrderDto): Promise<Order> {
     return this.orderService.createOrder(dto);
   }

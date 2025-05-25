@@ -18,7 +18,6 @@ describe('RecordService', () => {
   let recordRepo: jest.Mocked<RecordRepository>;
   let cacheService: jest.Mocked<CacheService>;
   let musicbrainzService: jest.Mocked<MusicbrainzService>;
-  let loggerErrorSpy: jest.SpyInstance;
   let loggerDebugSpy: jest.SpyInstance;
   let loggerLogSpy: jest.SpyInstance;
 
@@ -44,7 +43,6 @@ describe('RecordService', () => {
 
     service = new RecordService(recordRepo, cacheService, musicbrainzService);
 
-    loggerErrorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
     loggerDebugSpy = jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     loggerLogSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation();
   });
@@ -134,17 +132,10 @@ describe('RecordService', () => {
       expect(recordRepo.findAll).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle errors and log them', async () => {
+    it('should throw error when an exception is throw', async () => {
       const error = new Error('Database error');
       recordRepo.findAll.mockRejectedValue(error);
-      await expect(service.findAll(query)).rejects.toThrow(
-        'Failed to fetch records. Please try again later.',
-      );
-      expect(loggerErrorSpy).toHaveBeenCalledWith(
-        'Failed to fetch records: Database error',
-        error.stack,
-        `RecordService.findAll: ${JSON.stringify(query)}`,
-      );
+      await expect(service.findAll(query)).rejects.toThrow('Database error');
       expect(cacheService.get).toHaveBeenCalledWith(
         `records::${JSON.stringify(query)}`,
       );
@@ -229,7 +220,7 @@ describe('RecordService', () => {
       expect(musicbrainzService.fetchTracklistByMbid).not.toHaveBeenCalled();
     });
 
-    it('should handle errors during creation', async () => {
+    it('should throw an error if database operation fails', async () => {
       const createPayload = {
         artist: 'Test Artist',
         album: 'Test Album',
@@ -244,17 +235,11 @@ describe('RecordService', () => {
 
       await expect(
         service.create(createPayload as CreateRecordRequestDto),
-      ).rejects.toThrow('Failed to create record. Please try again later.');
+      ).rejects.toThrow('Database Create error');
       expect(recordRepo.create).toHaveBeenCalledWith({
         ...createPayload,
         tracklist: [],
       });
-
-      expect(loggerErrorSpy).toHaveBeenCalledWith(
-        'Failed to create record: Database Create error',
-        error.stack,
-        `RecordService.create: ${JSON.stringify(createPayload)}`,
-      );
     });
   });
 
@@ -400,7 +385,7 @@ describe('RecordService', () => {
       expect(recordRepo.update).not.toHaveBeenCalled();
     });
 
-    it('should handle errors during update', async () => {
+    it('should throw an error if database operation fails', async () => {
       const id = '683164229ad3a9471755bc87';
       const updatePayload = {
         artist: 'Updated Artist',
@@ -425,18 +410,13 @@ describe('RecordService', () => {
       recordRepo.update.mockRejectedValue(error);
 
       await expect(service.update(id, updatePayload)).rejects.toThrow(
-        'Failed to update record. Please try again later.',
+        'Database Update error',
       );
       expect(recordRepo.findById).toHaveBeenCalledWith(id);
       expect(recordRepo.update).toHaveBeenCalledWith(id, {
         ...updatePayload,
         tracklist: [],
       });
-      expect(loggerErrorSpy).toHaveBeenCalledWith(
-        'Failed to update record: Database Update error',
-        error.stack,
-        `RecordService.update: ${id} - ${JSON.stringify(updatePayload)}`,
-      );
     });
   });
 

@@ -3,12 +3,7 @@ import { OrderService } from '../order.service';
 import { OrderRepository } from '../order.repository';
 import { RecordRepository } from '../../record/record.repository';
 import { CreateOrderDto } from '../dtos/create-order.dto';
-import {
-  BadRequestException,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Record } from '../../record/record.schema';
 import { Order } from '../order.schema';
 
@@ -16,7 +11,6 @@ describe('OrderService', () => {
   let service: OrderService;
   let orderRepo: jest.Mocked<OrderRepository>;
   let recordRepo: jest.Mocked<RecordRepository>;
-  let loggerErrorSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     orderRepo = {
@@ -38,8 +32,6 @@ describe('OrderService', () => {
     }).compile();
 
     service = module.get<OrderService>(OrderService);
-
-    loggerErrorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
   });
 
   describe('createOrder', () => {
@@ -105,18 +97,12 @@ describe('OrderService', () => {
       recordRepo.findById.mockRejectedValueOnce(unexpectedError);
 
       await expect(service.createOrder(payload)).rejects.toThrow(
-        InternalServerErrorException,
+        unexpectedError,
       );
       expect(orderRepo.withTransaction).toHaveBeenCalled();
       expect(orderRepo.withTransaction).toHaveBeenCalledWith(
         expect.any(Function),
       );
-      expect(loggerErrorSpy).toHaveBeenCalledWith(
-        `Failed to create order: Unexpected failure`,
-        unexpectedError.stack,
-        expect.any(String),
-      );
-      expect(loggerErrorSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
