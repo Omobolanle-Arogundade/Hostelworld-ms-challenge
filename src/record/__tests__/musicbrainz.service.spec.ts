@@ -7,10 +7,20 @@ import { MusicbrainzService } from '../musicbrainz.service';
 
 jest.mock('axios');
 
+jest.mock('../../app.config.ts', () => {
+  return {
+    AppConfig: {
+      author: {
+        email: 'test@email.com',
+      },
+    },
+  };
+});
+
 const loadFixture = (name: string): string =>
   fs.readFileSync(path.join(__dirname, 'fixtures', name), 'utf8');
 
-const USER_AGENT = 'BrokenRecordStore/v1 (omobolanlearo@gmail.com)';
+const USER_AGENT = `BrokenRecordStore/v1 (test@email.com)`;
 
 describe('MusicbrainzService', () => {
   let service: MusicbrainzService;

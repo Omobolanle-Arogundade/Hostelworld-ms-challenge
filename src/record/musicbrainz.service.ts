@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
 import { CacheService } from '../shared/cache.service';
+import { AppConfig } from '../app.config';
 
 const CACHE_TTL = 60 * 60 * 12; // 12 hours
 @Injectable()
@@ -27,7 +28,7 @@ export class MusicbrainzService {
     try {
       const response = await axios.get(url, {
         headers: {
-          'User-Agent': 'BrokenRecordStore/v1 (omobolanlearo@gmail.com)',
+          'User-Agent': `BrokenRecordStore/v1 (${AppConfig?.author?.email})`,
         },
       });
 
