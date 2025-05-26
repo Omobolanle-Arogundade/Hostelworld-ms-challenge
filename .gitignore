@@ -1,6 +1,7 @@
 # compiled output
 /dist
 /node_modules
+/admin_ui/node_modules
 
 # Logs
 logs

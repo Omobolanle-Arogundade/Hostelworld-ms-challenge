@@ -22,6 +22,10 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new MetricsInterceptor(metricsService));
 
+  app.enableCors({
+    origin: AppConfig.adminUiUrl,
+  });
+
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Record API')

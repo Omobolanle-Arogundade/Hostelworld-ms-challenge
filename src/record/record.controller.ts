@@ -23,7 +23,7 @@ import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';
 import { RecordService } from './record.service';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
-import { PaginatedResponseDto } from '../common/dtos/paginated-response.dto';
+import { PaginatedResponseDto } from '../shared/dtos/paginated-response.dto';
 import { RecordCategory, RecordFormat } from './record.enum';
 import { Throttle } from '@nestjs/throttler';
 import { CustomThrottlerGuard } from '../common/guards/custom-throttler.guard';
@@ -64,7 +64,7 @@ export class RecordController {
   }
 
   @UseGuards(CustomThrottlerGuard)
-  @Throttle({ default: { limit: 2, ttl: 60000 } })
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Get()
   @ApiOperation({
     summary: 'Get all records with optional filters and pagination',

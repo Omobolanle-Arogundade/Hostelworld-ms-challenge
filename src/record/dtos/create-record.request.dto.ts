@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { RecordFormat, RecordCategory } from '../record.enum';
+import { Type } from 'class-transformer';
 
 export class CreateRecordRequestDto {
   @ApiProperty({
@@ -41,6 +42,7 @@ export class CreateRecordRequestDto {
   @IsNumber()
   @Min(0)
   @Max(10000)
+  @Type(() => Number)
   price: number;
 
   @ApiProperty({
@@ -53,6 +55,7 @@ export class CreateRecordRequestDto {
   @IsInt()
   @Min(0)
   @Max(100)
+  @Type(() => Number)
   qty: number;
 
   @ApiProperty({

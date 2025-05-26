@@ -9,6 +9,7 @@ interface AppConfig {
     name: string;
     email: string;
   };
+  adminUiUrl: string;
 }
 
 export const AppConfig: AppConfig = {
@@ -18,4 +19,5 @@ export const AppConfig: AppConfig = {
     name: process.env.AUTHOR_NAME || 'Default Author',
     email: process.env.AUTHOR_EMAIL || 'default@email.com',
   },
+  adminUiUrl: process.env.ADMIN_UI_URL || 'http://localhost:5173',
 };

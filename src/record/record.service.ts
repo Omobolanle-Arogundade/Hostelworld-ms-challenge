@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RecordRepository } from './record.repository';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
-import { PaginatedResponseDto } from '../common/dtos/paginated-response.dto';
+import { PaginatedResponseDto } from '../shared/dtos/paginated-response.dto';
 import { Record } from './record.schema';
 import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';

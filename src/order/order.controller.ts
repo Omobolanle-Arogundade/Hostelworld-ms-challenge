@@ -13,7 +13,7 @@ export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @UseGuards(CustomThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post()
   @ApiOperation({ summary: 'Create a new order' })
   @ApiBody({ type: CreateOrderDto })
