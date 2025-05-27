@@ -10,6 +10,7 @@ interface AppConfig {
     email: string;
   };
   adminUiUrl: string;
+  jwtSecret?: string;
 }
 
 export const AppConfig: AppConfig = {
@@ -20,4 +21,5 @@ export const AppConfig: AppConfig = {
     email: process.env.AUTHOR_EMAIL || 'default@email.com',
   },
   adminUiUrl: process.env.ADMIN_UI_URL || 'http://localhost:5173',
+  jwtSecret: process.env.JWT_SECRET,
 };
