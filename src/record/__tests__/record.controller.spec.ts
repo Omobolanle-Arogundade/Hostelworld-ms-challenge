@@ -9,6 +9,7 @@ import { UpdateRecordRequestDto } from '../dtos/update-record.request.dto';
 import { FilterRecordsQueryDto } from '../dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from '../../shared/dtos/paginated-response.dto';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AuthenticatedRequestDto } from '../../shared/dtos/authenticate-request.dto';
 
 describe('RecordController', () => {
   let controller: RecordController;
@@ -65,14 +66,22 @@ describe('RecordController', () => {
         category: RecordCategory.ROCK,
         mbid: 'some-mbid',
       };
+
+      const req = {
+        user: { userId: 'test-user-id' },
+      } as any as AuthenticatedRequestDto;
+
       service.create.mockResolvedValue({
         _id: 'created-record-id',
         ...payload,
       } as Record);
 
-      const result = await controller.create(payload);
+      const result = await controller.create(payload, req);
 
-      expect(service.create).toHaveBeenCalledWith(payload);
+      expect(service.create).toHaveBeenCalledWith({
+        ...payload,
+        createdBy: req.user.userId,
+      });
       expect(service.create).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual({
         _id: 'created-record-id',

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { RecordFormat, RecordCategory } from './record.enum';
 
 @Schema({ timestamps: true })
@@ -24,6 +24,9 @@ export class Record extends Document {
 
   @Prop({ default: Date.now })
   created: Date;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  createdBy: Types.ObjectId;
 
   @Prop({ default: Date.now })
   lastModified: Date;

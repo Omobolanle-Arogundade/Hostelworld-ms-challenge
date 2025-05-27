@@ -6,6 +6,7 @@ import { OrderModule } from './order/order.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MetricsController } from './common/metrics/metrics.controller';
 import { MetricsService } from './common/metrics/metrics.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MetricsService } from './common/metrics/metrics.service';
         },
       ],
     }),
+    AuthModule,
   ],
   controllers: [MetricsController],
   providers: [MetricsService],

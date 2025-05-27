@@ -36,7 +36,11 @@ describe('OrderRepository', () => {
 
   describe('create', () => {
     it('should create an order within a session', async () => {
-      const payload = { recordId: '123', quantity: 1 } as Partial<Order>;
+      const payload = {
+        recordId: '123',
+        quantity: 1,
+        userId: 'ss',
+      } as unknown as Order;
       const createdOrder = { id: 'order1', ...payload } as Order;
 
       model.create.mockResolvedValue([createdOrder] as any);

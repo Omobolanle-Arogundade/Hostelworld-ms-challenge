@@ -4,6 +4,7 @@ import { OrderService } from '../order.service';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { Order } from '../order.schema';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AuthenticatedRequestDto } from 'src/shared/dtos/authenticate-request.dto';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -39,12 +40,19 @@ describe('OrderController', () => {
         quantity: 2,
       };
 
-      const mockOrder = { id: 'order123', ...dto } as Order;
+      const req = {
+        user: { userId: '60d5ec49f1b2c8a3f8e4b0a2' },
+      } as unknown as AuthenticatedRequestDto;
+
+      const mockOrder = { id: 'order123', ...dto } as unknown as Order;
       service.createOrder.mockResolvedValue(mockOrder);
 
-      const result = await controller.create(dto);
+      const result = await controller.create(dto, req);
 
-      expect(service.createOrder).toHaveBeenCalledWith(dto);
+      expect(service.createOrder).toHaveBeenCalledWith({
+        ...dto,
+        userId: req.user.userId,
+      });
       expect(result).toBe(mockOrder);
     });
   });

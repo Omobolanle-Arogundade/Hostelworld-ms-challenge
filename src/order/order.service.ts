@@ -5,9 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderRepository } from './order.repository';
-import { CreateOrderDto } from './dtos/create-order.dto';
 import { Order } from './order.schema';
 import { RecordRepository } from '../record/record.repository';
+import { Types } from 'mongoose';
+import { CreateOrderPayloadDto } from './dtos/create-order-payload.dto';
 
 @Injectable()
 export class OrderService {
@@ -18,7 +19,7 @@ export class OrderService {
     private readonly recordRepo: RecordRepository,
   ) {}
 
-  async createOrder(payload: CreateOrderDto): Promise<Order> {
+  async createOrder(payload: CreateOrderPayloadDto): Promise<Order> {
     const ctx = `OrderService.createOrder: ${JSON.stringify(payload)}`;
     const transactionFn = async (session) => {
       this.logger.debug(`Starting transaction for order creation`, ctx);
@@ -49,8 +50,9 @@ export class OrderService {
       // Create order inside session
       const order = this.orderRepo.create(
         {
-          recordId: payload.recordId,
+          recordId: new Types.ObjectId(payload.recordId),
           quantity: payload.quantity,
+          userId: new Types.ObjectId(payload.userId),
         },
         session,
       );

@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { Record } from './record.schema';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
-import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
 
 @Injectable()
 export class RecordRepository {
@@ -50,7 +49,7 @@ export class RecordRepository {
    * @description This method creates a new record in the database.
    * @returns The created record
    */
-  async create(payload: CreateRecordRequestDto): Promise<Record> {
+  async create(payload: Partial<Record>): Promise<Record> {
     return this.recordModel.create(payload);
   }
 

@@ -3,10 +3,11 @@ import { RecordRepository } from './record.repository';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from '../shared/dtos/paginated-response.dto';
 import { Record } from './record.schema';
-import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';
 import { CacheService } from '../shared/cache.service';
 import { MusicbrainzService } from './musicbrainz.service';
+import { Types } from 'mongoose';
+import { CreateRecordPayloadDto } from './dtos/create-record.payload.dto';
 
 @Injectable()
 export class RecordService {
@@ -65,7 +66,7 @@ export class RecordService {
    * @returns The created record
    * @throws InternalServerErrorException if there is an error during the creation
    */
-  async create(payload: CreateRecordRequestDto): Promise<Record> {
+  async create(payload: CreateRecordPayloadDto): Promise<Record> {
     const ctx = `RecordService.create: ${JSON.stringify(payload)}`;
     const tracklist = payload.mbid
       ? await this.musicbrainz.fetchTracklistByMbid(payload.mbid)
@@ -74,6 +75,7 @@ export class RecordService {
     const record = await this.recordRepo.create({
       ...payload,
       tracklist,
+      createdBy: new Types.ObjectId(payload.createdBy),
     });
 
     this.logger.log(`Record created successfully with id ${record._id}`, ctx);

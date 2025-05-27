@@ -1,14 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CacheService } from 'src/shared/cache.service';
+import { CacheService } from '../../shared/cache.service';
 import { RecordService } from '../record.service';
 import { RecordRepository } from '../record.repository';
 import { MusicbrainzService } from '../musicbrainz.service';
 import { FilterRecordsQueryDto } from '../dtos/filter-records.query.dto';
 import { Record } from '../record.schema';
 import { Logger } from '@nestjs/common';
-import { CreateRecordRequestDto } from '../dtos/create-record.request.dto';
 import { UpdateRecordRequestDto } from '../dtos/update-record.request.dto';
+import { Types } from 'mongoose';
+import { CreateRecordPayloadDto } from '../dtos/create-record.payload.dto';
 
 const loadFixture = (name: string): Record[] =>
   JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', name), 'utf8'));
@@ -155,6 +156,7 @@ describe('RecordService', () => {
         format: 'CD',
         category: 'Jazz',
         mbid: 'bc4baec2-c50b-4958-b2c9-8c184dd6e9d0',
+        createdBy: '683164229ad3a9471755bc87',
       };
       const tracklist = ['Track 1', 'Track 2'];
       musicbrainzService.fetchTracklistByMbid.mockResolvedValue(tracklist);
@@ -165,15 +167,16 @@ describe('RecordService', () => {
         tracklist,
       };
 
-      recordRepo.create.mockResolvedValue(createdRecord as Record);
+      recordRepo.create.mockResolvedValue(createdRecord as unknown as Record);
 
       const result = await service.create(
-        createPayload as CreateRecordRequestDto,
+        createPayload as unknown as CreateRecordPayloadDto,
       );
 
       expect(recordRepo.create).toHaveBeenCalledWith({
         ...createPayload,
         tracklist,
+        createdBy: new Types.ObjectId(createPayload.createdBy),
       });
       expect(result).toEqual(createdRecord);
       expect(cacheService.clearByPrefix).toHaveBeenCalledWith('records::');
@@ -195,6 +198,7 @@ describe('RecordService', () => {
         qty: 10,
         format: 'VINYL',
         category: 'ALTERNATIVE',
+        createdBy: '683164229ad3a9471755bc88',
       };
       const tracklist: string[] = [];
       musicbrainzService.fetchTracklistByMbid.mockResolvedValue(tracklist);
@@ -203,13 +207,14 @@ describe('RecordService', () => {
         ...createPayload,
         tracklist,
       };
-      recordRepo.create.mockResolvedValue(createdRecord as Record);
+      recordRepo.create.mockResolvedValue(createdRecord as unknown as Record);
       const result = await service.create(
-        createPayload as CreateRecordRequestDto,
+        createPayload as unknown as CreateRecordPayloadDto,
       );
       expect(recordRepo.create).toHaveBeenCalledWith({
         ...createPayload,
         tracklist,
+        createdBy: new Types.ObjectId(createPayload.createdBy),
       });
       expect(result).toEqual(createdRecord);
       expect(cacheService.clearByPrefix).toHaveBeenCalledWith('records::');
@@ -228,17 +233,19 @@ describe('RecordService', () => {
         qty: 10,
         format: 'VINYL',
         category: 'ALTERNATIVE',
+        createdBy: '683164229ad3a9471755bc89',
       };
       const error = new Error('Database Create error');
       recordRepo.create.mockRejectedValue(error);
       musicbrainzService.fetchTracklistByMbid.mockResolvedValue([]);
 
       await expect(
-        service.create(createPayload as CreateRecordRequestDto),
+        service.create(createPayload as unknown as CreateRecordPayloadDto),
       ).rejects.toThrow('Database Create error');
       expect(recordRepo.create).toHaveBeenCalledWith({
         ...createPayload,
         tracklist: [],
+        createdBy: new Types.ObjectId(createPayload.createdBy),
       });
     });
   });

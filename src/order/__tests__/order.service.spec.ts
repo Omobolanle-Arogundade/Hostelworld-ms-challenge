@@ -2,10 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { OrderService } from '../order.service';
 import { OrderRepository } from '../order.repository';
 import { RecordRepository } from '../../record/record.repository';
-import { CreateOrderDto } from '../dtos/create-order.dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Record } from '../../record/record.schema';
 import { Order } from '../order.schema';
+import { Types } from 'mongoose';
+import { CreateOrderPayloadDto } from '../dtos/create-order-payload.dto';
 
 describe('OrderService', () => {
   let service: OrderService;
@@ -35,9 +36,10 @@ describe('OrderService', () => {
   });
 
   describe('createOrder', () => {
-    const payload: CreateOrderDto = {
-      recordId: 'record123',
+    const payload: CreateOrderPayloadDto = {
+      recordId: '68356edf297ec83393d3eb98',
       quantity: 2,
+      userId: '68356edf297ec83393d3eb98',
     };
 
     it('should throw NotFoundException if record does not exist', async () => {
@@ -69,7 +71,7 @@ describe('OrderService', () => {
 
     it('should create order and update record inside a transaction', async () => {
       const mockRecord = { qty: 5, album: 'Test Album' } as Record;
-      const mockOrder = { id: 'order123', ...payload } as Order;
+      const mockOrder = { id: 'order123', ...payload } as unknown as Order;
 
       recordRepo.findById.mockResolvedValue(mockRecord);
       orderRepo.create.mockResolvedValue(mockOrder);
@@ -82,7 +84,11 @@ describe('OrderService', () => {
         'mockSession',
       );
       expect(orderRepo.create).toHaveBeenCalledWith(
-        { recordId: payload.recordId, quantity: payload.quantity },
+        {
+          recordId: new Types.ObjectId(payload.recordId),
+          quantity: payload.quantity,
+          userId: new Types.ObjectId(payload.userId),
+        },
         'mockSession',
       );
       expect(result).toBe(mockOrder);
