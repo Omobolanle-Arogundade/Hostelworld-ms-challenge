@@ -91,7 +91,7 @@ export class RecordService {
    * @throws NotFoundException if the record is not found
    * @throws InternalServerErrorException if there is an error during the update
    */
-  async update(id: string, payload: UpdateRecordRequestDto) {
+  async update(id: Types.ObjectId, payload: UpdateRecordRequestDto) {
     const ctx = `RecordService.update: ${id} - ${JSON.stringify(payload)}`;
     const existing = await this.recordRepo.findById(id);
     if (!existing) {
@@ -114,7 +114,7 @@ export class RecordService {
    * @param id id of the record to delete
    * @description This method deletes a record from the database.
    */
-  async delete(id: string) {
+  async delete(id: Types.ObjectId): Promise<Record | null> {
     return this.recordRepo.delete(id);
   }
 }

@@ -37,7 +37,7 @@ describe('OrderService', () => {
 
   describe('createOrder', () => {
     const payload: CreateOrderPayloadDto = {
-      recordId: '68356edf297ec83393d3eb98',
+      recordId: new Types.ObjectId('68356edf297ec83393d3eb97'),
       quantity: 2,
       userId: '68356edf297ec83393d3eb98',
     };

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Record } from './record.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';
 import { RecordService } from './record.service';
@@ -23,6 +23,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../user/enums/role.enum';
 import { AuthenticatedRequestDto } from '../shared/dtos/authenticate-request.dto';
 import { CreateRecordRequestDto } from './dtos/create-record.request.dto';
+import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('Records')
 @Controller('records')
@@ -49,12 +50,16 @@ export class RecordController {
   @ApiOperation({ summary: 'Update a record by ID' })
   @ApiResponse({ status: 200, description: 'Record updated successfully' })
   @ApiResponse({ status: 404, description: 'Record not found' })
-  async update(@Param('id') id: string, @Body() dto: UpdateRecordRequestDto) {
+  async update(
+    @Param('id') id: Types.ObjectId,
+    @Body() dto: UpdateRecordRequestDto,
+  ) {
     return this.recordService.update(id, dto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all records with optional filters' })
+  @Public()
   @ApiResponse({
     status: 200,
     description: 'List of records',

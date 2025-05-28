@@ -252,7 +252,7 @@ describe('RecordService', () => {
 
   describe('update', () => {
     it('should update an existing record and clear cache', async () => {
-      const id = '683164229ad3a9471755bc87';
+      const id = new Types.ObjectId('683164229ad3a9471755bc87');
       const updatePayload = {
         artist: 'Updated Artist',
         album: 'Updated Album',
@@ -315,7 +315,7 @@ describe('RecordService', () => {
     });
 
     it('should update record with existing tracklist if mbid is unchanged', async () => {
-      const id = '683164229ad3a9471755bc87';
+      const id = new Types.ObjectId('683164229ad3a9471755bc87');
       const updatePayload = {
         artist: 'Updated Artist',
         album: 'Updated Album',
@@ -375,7 +375,7 @@ describe('RecordService', () => {
     it('should throw if record is not found', async () => {
       recordRepo.findById.mockResolvedValueOnce(null);
 
-      const id = 'nonexistent-id';
+      const id = new Types.ObjectId('68377b36c005b821df26547b');
       const updatePayload = {
         artist: 'Updated Artist',
         album: 'Updated Album',
@@ -385,7 +385,7 @@ describe('RecordService', () => {
         mbid: 'bc4baec2-c50b-4958-b2c9-8c184dd6e9d0',
       } as UpdateRecordRequestDto;
       await expect(service.update(id, updatePayload)).rejects.toThrow(
-        'Record with id nonexistent-id not found!!',
+        'Record with id 68377b36c005b821df26547b not found!!',
       );
       expect(recordRepo.findById).toHaveBeenCalledWith(id);
       expect(cacheService.clearByPrefix).not.toHaveBeenCalled();
@@ -393,7 +393,7 @@ describe('RecordService', () => {
     });
 
     it('should throw an error if database operation fails', async () => {
-      const id = '683164229ad3a9471755bc87';
+      const id = new Types.ObjectId('683164229ad3a9471755bc87');
       const updatePayload = {
         artist: 'Updated Artist',
         album: 'Updated Album',
@@ -429,7 +429,7 @@ describe('RecordService', () => {
 
   describe('delete', () => {
     it('should call repository delete', async () => {
-      const id = '683164229ad3a9471755bc87';
+      const id = new Types.ObjectId('683164229ad3a9471755bc87');
       const deletedRecord = {
         _id: id,
         artist: 'Old Artist',

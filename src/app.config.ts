@@ -1,6 +1,12 @@
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 
-dotenv.config();
+dotenv.config({
+  path:
+    process.env.NODE_ENV === 'test'
+      ? path.resolve(__dirname, '../.env.test')
+      : undefined,
+});
 
 interface AppConfig {
   mongoUrl: string;

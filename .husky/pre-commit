@@ -10,7 +10,7 @@ fi
 echo "Linters passed. Running tests..."
 
 # Run tests
-npm run test 
+npm run test && npm run test:e2e
 TESTS_EXIT_CODE=$?
 
 if [ $TESTS_EXIT_CODE -ne 0 ]; then

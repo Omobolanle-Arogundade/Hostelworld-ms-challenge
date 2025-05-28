@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { RecordRepository } from '../record.repository';
 import { Record } from '../record.schema';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -200,16 +200,17 @@ describe('RecordRepository', () => {
   describe('update', () => {
     it('should call updateOne with given data and session', async () => {
       const mockExec = jest.fn().mockResolvedValue(true);
+      const id = new Types.ObjectId();
       model.updateOne.mockReturnValueOnce({ exec: mockExec } as any);
 
       const result = await repository.update(
-        'id',
+        id,
         { artist: 'Updated' },
         'session' as any,
       );
 
       expect(model.updateOne).toHaveBeenCalledWith(
-        { _id: 'id' },
+        { _id: id },
         { artist: 'Updated' },
         { session: 'session' },
       );
@@ -221,11 +222,12 @@ describe('RecordRepository', () => {
   describe('findById', () => {
     it('should return a record by ID', async () => {
       const mockRecord = { artist: 'Some Artist' } as Record;
+      const id = new Types.ObjectId();
       const exec = jest.fn().mockResolvedValueOnce(mockRecord);
       model.findById.mockReturnValueOnce({ exec } as any);
 
-      const result = await repository.findById('123');
-      expect(model.findById).toHaveBeenCalledWith('123');
+      const result = await repository.findById(id);
+      expect(model.findById).toHaveBeenCalledWith(id);
       expect(result).toBe(mockRecord);
     });
   });
@@ -233,11 +235,12 @@ describe('RecordRepository', () => {
   describe('delete', () => {
     it('should delete and return the record', async () => {
       const mockRecord = { artist: 'To Delete' } as Record;
+      const id = new Types.ObjectId();
       const exec = jest.fn().mockResolvedValueOnce(mockRecord);
       model.findByIdAndDelete.mockReturnValueOnce({ exec } as any);
 
-      const result = await repository.delete('456');
-      expect(model.findByIdAndDelete).toHaveBeenCalledWith('456');
+      const result = await repository.delete(id);
+      expect(model.findByIdAndDelete).toHaveBeenCalledWith(id);
       expect(result).toBe(mockRecord);
     });
   });

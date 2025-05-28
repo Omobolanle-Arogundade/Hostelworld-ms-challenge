@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -10,7 +10,8 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Login a user and retrieve a JWT' })
-  @ApiResponse({ status: 201, description: 'User successfully logged in' })
+  @HttpCode(200)
+  @ApiResponse({ status: 200, description: 'User successfully logged in' })
   @ApiResponse({ status: 401, description: 'Invalid email or password' })
   async login(@Body() loginDto: LoginRequestDto) {
     const user = await this.authService.validateUser(

@@ -5,6 +5,7 @@ import { CreateOrderDto } from '../dtos/create-order.dto';
 import { Order } from '../order.schema';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthenticatedRequestDto } from 'src/shared/dtos/authenticate-request.dto';
+import { Types } from 'mongoose';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -36,7 +37,7 @@ describe('OrderController', () => {
   describe('create', () => {
     it('should call orderService.createOrder with correct dto', async () => {
       const dto: CreateOrderDto = {
-        recordId: '60d5ec49f1b2c8a3f8e4b0a1',
+        recordId: new Types.ObjectId('60d5ec49f1b2c8a3f8e4b0a1'),
         quantity: 2,
       };
 

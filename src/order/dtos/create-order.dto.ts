@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsMongoId, Min } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class CreateOrderDto {
   @ApiProperty({
@@ -9,7 +10,7 @@ export class CreateOrderDto {
     required: true,
   })
   @IsMongoId()
-  recordId: string;
+  recordId: Types.ObjectId;
 
   @ApiProperty({
     description: 'Quantity of the record being ordered',

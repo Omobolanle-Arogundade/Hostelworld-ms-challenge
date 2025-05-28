@@ -10,6 +10,7 @@ import { FilterRecordsQueryDto } from '../dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from '../../shared/dtos/paginated-response.dto';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthenticatedRequestDto } from '../../shared/dtos/authenticate-request.dto';
+import { Types } from 'mongoose';
 
 describe('RecordController', () => {
   let controller: RecordController;
@@ -92,12 +93,12 @@ describe('RecordController', () => {
 
   describe('update', () => {
     it('should delegate to recordService.update', async () => {
-      const id = '123';
+      const _id = new Types.ObjectId('68377c16a377ae53114d8b15');
       const payload: UpdateRecordRequestDto = {
         artist: 'Updated Artist',
       };
       service.update.mockResolvedValue({
-        _id: 'updated-record',
+        _id,
         artist: 'Updated Artist',
         album: 'Original Album',
         price: 30,
@@ -106,12 +107,12 @@ describe('RecordController', () => {
         category: RecordCategory.ROCK,
       } as Partial<Record>);
 
-      const result = await controller.update(id, payload);
+      const result = await controller.update(_id, payload);
 
-      expect(service.update).toHaveBeenCalledWith(id, payload);
+      expect(service.update).toHaveBeenCalledWith(_id, payload);
       expect(service.update).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual({
-        _id: 'updated-record',
+        _id,
         artist: 'Updated Artist',
         album: 'Original Album',
         price: 30,
