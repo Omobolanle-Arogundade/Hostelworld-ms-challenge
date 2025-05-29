@@ -8,7 +8,8 @@ import type {
   UserInfo,
 } from './types';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || process.env.VITE_API_BASE_URL;
 
 console.log('API Base URL:', BASE_URL);
 
