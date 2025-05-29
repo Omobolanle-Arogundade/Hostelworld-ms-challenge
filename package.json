@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && npm run build:ui",
+    "build": "nest build",
     "build:ui": "rm -rf src/admin_ui && cd admin_ui && npm install && npm run build && cp -r dist ../src/admin_ui",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "mongo:start": "docker compose -f ./docker-compose-mongo.yml up -d",
