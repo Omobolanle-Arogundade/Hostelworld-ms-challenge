@@ -18,8 +18,6 @@
     # Build backend and frontend
     RUN npm run build
 
-    # Run seeders
-    RUN npm run setup:db
     
     # -------------------------------------
     # 2. Production image
