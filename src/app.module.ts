@@ -7,9 +7,18 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { MetricsController } from './common/metrics/metrics.controller';
 import { MetricsService } from './common/metrics/metrics.service';
 import { AuthModule } from './auth/auth.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'src', 'admin_ui'),
+      exclude: ['/api*', '/swagger*', '/metrics*'],
+      serveStaticOptions: {
+        fallthrough: false,
+      },
+    }),
     MongooseModule.forRoot(AppConfig.mongoUrl),
     RecordModule,
     OrderModule,

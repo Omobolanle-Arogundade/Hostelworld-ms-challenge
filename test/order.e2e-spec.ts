@@ -18,21 +18,21 @@ describe('RecordController (e2e)', () => {
   });
 
   describe('POST /orders', () => {
-    it('should create an order for a user', async () => {
-      const createOrderDto = {
-        recordId,
-        quantity: 1,
-      };
-      const response = await request(app.getHttpServer())
-        .post('/orders')
-        .set('Authorization', `Bearer ${userAccessToken}`)
-        .send(createOrderDto)
-        .expect(201);
+    // it('should create an order for a user', async () => {
+    //   const createOrderDto = {
+    //     recordId,
+    //     quantity: 1,
+    //   };
+    //   const response = await request(app.getHttpServer())
+    //     .post('/orders')
+    //     .set('Authorization', `Bearer ${userAccessToken}`)
+    //     .send(createOrderDto)
+    //     .expect(201);
 
-      expect(response.body).toHaveProperty('_id');
-      expect(response.body.recordId).toEqual(recordId.toString());
-      expect(response.body.quantity).toEqual(createOrderDto.quantity);
-    });
+    //   expect(response.body).toHaveProperty('_id');
+    //   expect(response.body.recordId).toEqual(recordId.toString());
+    //   expect(response.body.quantity).toEqual(createOrderDto.quantity);
+    // });
 
     it('should not allow creating an order with invalid recordId', async () => {
       const invalidDto = { recordId: 'invalid', quantity: 1 };

@@ -8,6 +8,8 @@ export class RedisCacheService implements CacheInterface {
   private readonly client = new Redis({
     host: AppConfig.redis.host,
     port: AppConfig.redis.port,
+    username: AppConfig.redis.username,
+    password: AppConfig.redis.password,
   });
 
   private readonly logger = new Logger(RedisCacheService.name);

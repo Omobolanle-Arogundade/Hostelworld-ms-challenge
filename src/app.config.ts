@@ -20,6 +20,8 @@ interface AppConfig {
   redis: {
     host: string;
     port: number;
+    username?: string;
+    password?: string;
   };
 }
 
@@ -35,5 +37,7 @@ export const AppConfig: AppConfig = {
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
     port: Number(process.env.REDIS_PORT) || 6379,
+    username: process.env.REDIS_USERNAME,
+    password: process.env.REDIS_PASSWORD,
   },
 };

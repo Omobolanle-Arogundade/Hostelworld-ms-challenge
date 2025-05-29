@@ -26,6 +26,8 @@ async function bootstrap() {
     origin: AppConfig.adminUiUrl,
   });
 
+  app.setGlobalPrefix('api');
+
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Record API')
