@@ -4,7 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { AppConfig } from '../app.config';
 import { CacheInterface } from '../common/cache/cache.interface';
 
-const CACHE_TTL = 60 * 60 * 12; // 12 hours
+const CACHE_TTL = 60 * 60 * 12;
 @Injectable()
 export class MusicbrainzService {
   constructor(
