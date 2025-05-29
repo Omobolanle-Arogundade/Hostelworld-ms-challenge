@@ -1,11 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import axios from 'axios';
 import { Logger } from '@nestjs/common';
 import { MusicbrainzService } from '../musicbrainz.service';
 import { NodeCacheService } from '../../common/cache/node-cache.service';
-
-jest.mock('axios');
+import { ApiGateway } from 'src/common/http/api-gateway.interface';
 
 jest.mock('../../app.config.ts', () => {
   return {
@@ -27,6 +25,8 @@ describe('MusicbrainzService', () => {
   let cacheService: jest.Mocked<NodeCacheService>;
   let loggerErrorSpy: jest.SpyInstance;
   let loggerDebugSpy: jest.SpyInstance;
+  let loggerWarnSpy: jest.SpyInstance;
+  let httpService: jest.Mocked<ApiGateway>;
 
   beforeEach(() => {
     cacheService = {
@@ -34,10 +34,15 @@ describe('MusicbrainzService', () => {
       set: jest.fn(),
     } as any;
 
-    service = new MusicbrainzService(cacheService);
+    httpService = {
+      get: jest.fn(),
+    };
+
+    service = new MusicbrainzService(cacheService, httpService);
 
     loggerErrorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation();
     loggerDebugSpy = jest.spyOn(Logger.prototype, 'debug').mockImplementation();
+    loggerWarnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
   });
 
   afterEach(() => {
@@ -59,26 +64,26 @@ describe('MusicbrainzService', () => {
       expect(cacheService.get).toHaveBeenCalledTimes(1);
       expect(cacheService.set).not.toHaveBeenCalled();
       expect(loggerDebugSpy).toHaveBeenCalledWith(`Cache hit for MBID ${mbid}`);
-      expect(axios.get).not.toHaveBeenCalled();
+      expect(httpService.get).not.toHaveBeenCalled();
     });
 
     it('should fetch and parse tracklist if not cached (array)', async () => {
       cacheService.get.mockReturnValue(undefined);
 
       const xml = loadFixture('tracklist-array.xml');
-      (axios.get as jest.Mock).mockResolvedValue({ data: xml });
+      (httpService.get as jest.Mock).mockResolvedValue(xml);
 
       const result = await service.fetchTracklistByMbid(mbid);
 
       expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
       expect(cacheService.get).toHaveBeenCalledTimes(1);
 
-      expect(axios.get).toHaveBeenCalledWith(url, {
+      expect(httpService.get).toHaveBeenCalledWith(url, {
         headers: {
           'User-Agent': USER_AGENT,
         },
       });
-      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(httpService.get).toHaveBeenCalledTimes(1);
 
       expect(result).toEqual(['Track One', 'Track Two']);
       expect(cacheService.set).toHaveBeenCalledWith(
@@ -87,28 +92,24 @@ describe('MusicbrainzService', () => {
         43200,
       );
       expect(cacheService.set).toHaveBeenCalledTimes(1);
-
-      expect(loggerDebugSpy).toHaveBeenCalledWith(
-        `Fetching tracklist for MBID ${cacheKey}`,
-      );
     });
 
     it('should return "Unknown Track" if title is missing in track recording', async () => {
       cacheService.get.mockReturnValue(undefined);
 
       const xml = loadFixture('tracklist-array-missing-title.xml');
-      (axios.get as jest.Mock).mockResolvedValue({ data: xml });
+      (httpService.get as jest.Mock).mockResolvedValue(xml);
 
       const result = await service.fetchTracklistByMbid(mbid);
       expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
       expect(cacheService.get).toHaveBeenCalledTimes(1);
 
-      expect(axios.get).toHaveBeenCalledWith(url, {
+      expect(httpService.get).toHaveBeenCalledWith(url, {
         headers: {
           'User-Agent': USER_AGENT,
         },
       });
-      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(httpService.get).toHaveBeenCalledTimes(1);
 
       expect(result).toEqual(['Unknown Track', 'Unknown Track']);
 
@@ -118,28 +119,24 @@ describe('MusicbrainzService', () => {
         43200,
       );
       expect(cacheService.set).toHaveBeenCalledTimes(1);
-
-      expect(loggerDebugSpy).toHaveBeenCalledWith(
-        `Fetching tracklist for MBID ${cacheKey}`,
-      );
     });
 
     it('should parse single track object correctly', async () => {
       cacheService.get.mockReturnValue(undefined);
 
       const xml = loadFixture('tracklist-single.xml');
-      (axios.get as jest.Mock).mockResolvedValue({ data: xml });
+      (httpService.get as jest.Mock).mockResolvedValue(xml);
 
       const result = await service.fetchTracklistByMbid(mbid);
       expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
       expect(cacheService.get).toHaveBeenCalledTimes(1);
 
-      expect(axios.get).toHaveBeenCalledWith(url, {
+      expect(httpService.get).toHaveBeenCalledWith(url, {
         headers: {
           'User-Agent': USER_AGENT,
         },
       });
-      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(httpService.get).toHaveBeenCalledTimes(1);
 
       expect(result).toEqual(['Single Track']);
 
@@ -149,29 +146,23 @@ describe('MusicbrainzService', () => {
         43200,
       );
       expect(cacheService.set).toHaveBeenCalledTimes(1);
-
-      expect(loggerDebugSpy).toHaveBeenCalledWith(
-        `Fetching tracklist for MBID ${cacheKey}`,
-      );
     });
 
     it('should parse single track object with missing title', async () => {
       cacheService.get.mockReturnValue(undefined);
 
       const xml = loadFixture('tracklist-single-missing-title.xml');
-      (axios.get as jest.Mock).mockResolvedValue({
-        data: xml,
-      });
+      (httpService.get as jest.Mock).mockResolvedValue(xml);
 
       const result = await service.fetchTracklistByMbid(mbid);
       expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
       expect(cacheService.get).toHaveBeenCalledTimes(1);
-      expect(axios.get).toHaveBeenCalledWith(url, {
+      expect(httpService.get).toHaveBeenCalledWith(url, {
         headers: {
           'User-Agent': USER_AGENT,
         },
       });
-      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(httpService.get).toHaveBeenCalledTimes(1);
       expect(result).toEqual(['Unknown Track']);
       expect(cacheService.set).toHaveBeenCalledWith(
         cacheKey,
@@ -179,66 +170,64 @@ describe('MusicbrainzService', () => {
         43200,
       );
       expect(cacheService.set).toHaveBeenCalledTimes(1);
-      expect(loggerDebugSpy).toHaveBeenCalledWith(
-        `Fetching tracklist for MBID ${cacheKey}`,
-      );
     });
 
     it('should return empty array if no tracks found', async () => {
       cacheService.get.mockReturnValue(undefined);
 
       const xml = loadFixture('tracklist-empty.xml');
-      (axios.get as jest.Mock).mockResolvedValue({ data: xml });
+      (httpService.get as jest.Mock).mockResolvedValue(xml);
 
       const result = await service.fetchTracklistByMbid(mbid);
       expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
       expect(cacheService.get).toHaveBeenCalledTimes(1);
 
-      expect(axios.get).toHaveBeenCalledWith(url, {
+      expect(httpService.get).toHaveBeenCalledWith(url, {
         headers: {
           'User-Agent': USER_AGENT,
         },
       });
-      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(httpService.get).toHaveBeenCalledTimes(1);
 
       expect(result).toEqual([]);
       expect(cacheService.set).not.toHaveBeenCalled();
     });
 
-    it('should return empty array and log on error', async () => {
+    it('should retry on error and return empty array', async () => {
       cacheService.get.mockReturnValue(undefined);
-      (axios.get as jest.Mock).mockRejectedValue(new Error('Network failure'));
+      (httpService.get as jest.Mock).mockRejectedValue(
+        new Error('Network failure'),
+      );
 
       const result = await service.fetchTracklistByMbid(mbid);
       expect(cacheService.get).toHaveBeenCalledWith(cacheKey);
       expect(cacheService.get).toHaveBeenCalledTimes(1);
 
-      expect(axios.get).toHaveBeenCalledWith(url, {
+      expect(httpService.get).toHaveBeenCalledWith(url, {
         headers: {
           'User-Agent': USER_AGENT,
         },
       });
-      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(httpService.get).toHaveBeenCalledTimes(3);
 
       expect(result).toEqual([]);
       expect(loggerErrorSpy).toHaveBeenCalledWith(
-        `Failed to fetch from MBID ${mbid}: Network failure`,
+        `All retries failed for MBID test-mbid: Network failure`,
       );
+      expect(loggerWarnSpy).toHaveBeenCalledTimes(3);
     });
 
     it('should return empty array and log error if XML is malformed', async () => {
       cacheService.get.mockReturnValue(undefined);
 
       const xml = loadFixture('tracklist-malformed.xml');
-      (axios.get as jest.Mock).mockResolvedValue({
-        data: xml,
-      });
+      (httpService.get as jest.Mock).mockResolvedValue(xml);
 
       const result = await service.fetchTracklistByMbid(mbid);
 
       expect(result).toEqual([]);
       expect(loggerErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to fetch from MBID'),
+        expect.stringContaining('All retries failed for MBID test-mbid'),
       );
     });
   });

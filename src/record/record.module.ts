@@ -6,6 +6,7 @@ import { RecordSchema } from './record.schema';
 import { RecordRepository } from './record.repository';
 import { MusicbrainzService } from './musicbrainz.service';
 import { CacheModule } from '../common/cache/cache.module';
+import { AxiosApiGateway } from '../common/http/axios-api-gateway.service';
 
 @Module({
   imports: [
@@ -13,7 +14,15 @@ import { CacheModule } from '../common/cache/cache.module';
     CacheModule,
   ],
   controllers: [RecordController],
-  providers: [RecordService, RecordRepository, MusicbrainzService],
+  providers: [
+    RecordService,
+    RecordRepository,
+    MusicbrainzService,
+    {
+      provide: 'ApiGateway',
+      useClass: AxiosApiGateway,
+    },
+  ],
   exports: [RecordRepository],
 })
 export class RecordModule {}
