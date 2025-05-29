@@ -31,6 +31,10 @@ describe('AuthController (e2e)', () => {
       .expect(200);
 
     expect(response.body).toHaveProperty('access_token');
+    expect(response.body.user).toHaveProperty(
+      'email',
+      validAdminCredentials.email,
+    );
     expect(typeof response.body.access_token).toBe('string');
   });
 

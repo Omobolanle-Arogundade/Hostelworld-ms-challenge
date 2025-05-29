@@ -4,7 +4,7 @@ import { OrderService } from '../order.service';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { Order } from '../order.schema';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { AuthenticatedRequestDto } from 'src/shared/dtos/authenticate-request.dto';
+import { AuthenticatedRequestDto } from '../../shared/dtos/authenticate-request.dto';
 import { Types } from 'mongoose';
 
 describe('OrderController', () => {

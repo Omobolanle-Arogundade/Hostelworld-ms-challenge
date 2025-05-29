@@ -6,6 +6,7 @@ import { OrderService } from '../order.service';
 import { OrderRepository } from '../order.repository';
 import { OrderController } from '../order.controller';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { CacheModule } from '../../common/cache/cache.module';
 
 describe('OrderModule', () => {
   let module: TestingModule;
@@ -23,6 +24,7 @@ describe('OrderModule', () => {
             },
           ],
         }),
+        CacheModule,
       ],
     })
       .overrideProvider(getModelToken('Order'))

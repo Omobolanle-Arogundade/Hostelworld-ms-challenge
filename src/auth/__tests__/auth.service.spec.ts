@@ -91,8 +91,17 @@ describe('AuthService', () => {
         sub: mockUser._id,
         email: mockUser.email,
         role: mockUser.role,
+        name: mockUser.name,
       });
-      expect(result).toEqual({ access_token: 'signed-token' });
+      expect(result).toEqual({
+        access_token: 'signed-token',
+        user: {
+          _id: mockUser._id,
+          name: mockUser.name,
+          email: mockUser.email,
+          role: mockUser.role,
+        },
+      });
     });
   });
 });

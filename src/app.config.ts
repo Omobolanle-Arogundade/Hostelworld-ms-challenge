@@ -17,6 +17,10 @@ interface AppConfig {
   };
   adminUiUrl: string;
   jwtSecret?: string;
+  redis: {
+    host: string;
+    port: number;
+  };
 }
 
 export const AppConfig: AppConfig = {
@@ -28,4 +32,8 @@ export const AppConfig: AppConfig = {
   },
   adminUiUrl: process.env.ADMIN_UI_URL || 'http://localhost:5173',
   jwtSecret: process.env.JWT_SECRET,
+  redis: {
+    host: process.env.REDIS_HOST || 'localhost',
+    port: Number(process.env.REDIS_PORT) || 6379,
+  },
 };

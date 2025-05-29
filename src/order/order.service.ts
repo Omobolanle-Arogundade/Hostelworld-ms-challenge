@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -9,6 +10,7 @@ import { Order } from './order.schema';
 import { RecordRepository } from '../record/record.repository';
 import { Types } from 'mongoose';
 import { CreateOrderPayloadDto } from './dtos/create-order-payload.dto';
+import { CacheInterface } from '../common/cache/cache.interface';
 
 @Injectable()
 export class OrderService {
@@ -17,6 +19,7 @@ export class OrderService {
   constructor(
     private readonly orderRepo: OrderRepository,
     private readonly recordRepo: RecordRepository,
+    @Inject('CacheInterface') private readonly cacheService: CacheInterface,
   ) {}
 
   async createOrder(payload: CreateOrderPayloadDto): Promise<Order> {
@@ -66,6 +69,7 @@ export class OrderService {
     };
 
     const order = await this.orderRepo.withTransaction(transactionFn);
+    await this.cacheService.clearByPrefix('records::');
     return order;
   }
 }

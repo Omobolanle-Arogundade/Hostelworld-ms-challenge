@@ -4,42 +4,86 @@ import { toast } from 'react-hot-toast';
 import { Button } from '../components/ui/Button';
 import { RecordFormModal } from '../components/RecordFormModal';
 import { RecordTable } from '../components/RecordTable';
-import type { RecordItem } from '../lib/types';
+import { LoginModal } from '../components/LoginModal';
+import type { RecordItem, UserInfo, UserRole } from '../lib/types';
 import { MostOrderedSidebar } from '../components/MostOrderedSidebar';
-import { fetchRecords, createRecord, updateRecord } from '../lib/api';
+import {
+  fetchRecords,
+  createRecord,
+  updateRecord,
+  getUser,
+  createOrder,
+} from '../lib/api';
+import { OrderModal } from '../components/OrderModal';
 
 const RecordsPage: React.FC = () => {
   const [records, setRecords] = useState<RecordItem[]>([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showRecordModal, setShowRecordModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<RecordItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserInfo | null>(null);
+
+  const loadRecords = async () => {
+    setLoading(true);
+    try {
+      const { data } = await fetchRecords();
+      setRecords(data);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to load records',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadRecords = async () => {
-      setLoading(true);
+    const checkUser = async () => {
       try {
-        const { data } = await fetchRecords();
-        setRecords(data);
-      } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : 'Failed to load records',
-        );
-      } finally {
-        setLoading(false);
+        const user = await getUser();
+        if (user) {
+          return setUser(user);
+        }
+        setUser(null);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+        setUser(null);
       }
     };
 
+    checkUser();
     loadRecords();
   }, []);
 
+  const isAdmin = user?.role === 'admin';
+  const isLoggedIn = !!user;
+
   const handleAddRecord = () => {
     setSelectedRecord(null);
-    setShowModal(true);
+    setShowRecordModal(true);
+  };
+
+  const handleLogin = () => {
+    setUser(null);
+    setShowLoginModal(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('jwtToken');
+    setUser(null);
+    toast.success('Logged out successfully');
   };
 
   const handleEditRecord = (record: RecordItem) => {
     setSelectedRecord(record);
-    setShowModal(true);
+    setShowRecordModal(true);
+  };
+
+  const handleOrder = (record: RecordItem) => {
+    setSelectedRecord(record);
+    setShowOrderModal(true);
   };
 
   const handleFormSubmit = async (data: Partial<RecordItem>) => {
@@ -55,10 +99,26 @@ const RecordsPage: React.FC = () => {
         setRecords((prev) => [...prev, created]);
         toast.success('Record created successfully');
       }
-      setShowModal(false);
+      setShowRecordModal(false);
       setSelectedRecord(null);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to save record');
+    }
+  };
+
+  const handleOrderSubmit = async (quantity: number) => {
+    if (!selectedRecord) return;
+    try {
+      await createOrder(selectedRecord._id, quantity);
+      toast.success(
+        `Order placed successfully for ${quantity} copies of ${selectedRecord.album}`,
+      );
+
+      loadRecords();
+      setShowOrderModal(false);
+      setSelectedRecord(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to place order');
     }
   };
 
@@ -67,7 +127,31 @@ const RecordsPage: React.FC = () => {
       <div className="flex-1">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Records</h1>
-          <Button onClick={handleAddRecord}>Add Record</Button>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-4">
+              {isAdmin && (
+                <Button
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                  onClick={handleAddRecord}
+                >
+                  Create Record
+                </Button>
+              )}
+              <Button
+                className="bg-red-600 text-white px-4 py-2 rounded"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <Button
+              className="bg-green-600 text-white px-4 py-2 rounded"
+              onClick={handleLogin}
+            >
+              Login
+            </Button>
+          )}
         </div>
 
         {loading ? (
@@ -75,7 +159,12 @@ const RecordsPage: React.FC = () => {
             Loading records...
           </div>
         ) : (
-          <RecordTable records={records} onEdit={handleEditRecord} />
+          <RecordTable
+            records={records}
+            userRole={user?.role as UserRole}
+            onEdit={handleEditRecord}
+            onOrder={handleOrder}
+          />
         )}
       </div>
 
@@ -84,11 +173,26 @@ const RecordsPage: React.FC = () => {
       </div>
 
       <RecordFormModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        isOpen={showRecordModal}
+        onClose={() => setShowRecordModal(false)}
         initialData={selectedRecord}
         onSubmit={handleFormSubmit}
       />
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onLoginSuccess={(user: UserInfo) => setUser(user)}
+        onClose={() => setShowLoginModal(false)}
+      />
+
+      {selectedRecord && (
+        <OrderModal
+          isOpen={showOrderModal}
+          record={selectedRecord}
+          onClose={() => setShowOrderModal(false)}
+          onSubmit={handleOrderSubmit}
+        />
+      )}
     </div>
   );
 };

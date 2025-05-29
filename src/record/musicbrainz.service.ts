@@ -1,20 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
-import { CacheService } from '../shared/cache.service';
 import { AppConfig } from '../app.config';
+import { CacheInterface } from '../common/cache/cache.interface';
 
 const CACHE_TTL = 60 * 60 * 12; // 12 hours
 @Injectable()
 export class MusicbrainzService {
-  constructor(private readonly cacheService: CacheService) {}
+  constructor(
+    @Inject('CacheInterface') private readonly cacheService: CacheInterface,
+  ) {}
 
   private readonly logger = new Logger(MusicbrainzService.name);
   private readonly parser = new XMLParser();
 
   async fetchTracklistByMbid(mbid: string): Promise<string[]> {
     const cacheKey = `mbid::${mbid}`;
-    const cached = this.cacheService.get<string[]>(cacheKey);
+    const cached = await this.cacheService.get<string[]>(cacheKey);
 
     if (cached) {
       this.logger.debug(`Cache hit for MBID ${mbid}`);

@@ -29,6 +29,15 @@ describe('AuthController', () => {
             login: jest.fn(),
           },
         },
+        {
+          provide: 'CacheInterface',
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            clearByPrefix: jest.fn(),
+            clearAll: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -44,7 +53,10 @@ describe('AuthController', () => {
       };
 
       authService.validateUser.mockResolvedValue(mockUser);
-      authService.login.mockResolvedValue({ access_token: 'fake-token' });
+      authService.login.mockResolvedValue({
+        access_token: 'fake-token',
+        user: mockUser,
+      });
 
       const result = await controller.login(dto);
 
@@ -53,7 +65,7 @@ describe('AuthController', () => {
         dto.password,
       );
       expect(authService.login).toHaveBeenCalledWith(mockUser);
-      expect(result).toEqual({ access_token: 'fake-token' });
+      expect(result).toEqual({ access_token: 'fake-token', user: mockUser });
     });
 
     it('should throw UnauthorizedException if login fails', async () => {

@@ -3,12 +3,13 @@ import { RecordModule } from '../record.module';
 import { RecordService } from '../record.service';
 import { RecordController } from '../record.controller';
 import { RecordRepository } from '../record.repository';
-import { CacheService } from '../../shared/cache.service';
 import { MusicbrainzService } from '../musicbrainz.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RecordSchema } from '../record.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { NodeCacheService } from '../../common/cache/node-cache.service';
+import { CacheInterface } from '../../common/cache/cache.interface';
 
 describe('RecordModule', () => {
   let module: TestingModule;
@@ -26,6 +27,17 @@ describe('RecordModule', () => {
             },
           ],
         }),
+      ],
+      providers: [
+        {
+          provide: 'CacheInterface',
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            clearByPrefix: jest.fn(),
+            clearAll: jest.fn(),
+          },
+        },
       ],
     })
       .overrideProvider(getModelToken('Record'))
@@ -49,7 +61,7 @@ describe('RecordModule', () => {
   });
 
   it('should resolve CacheService and MusicbrainzService', () => {
-    const cache = module.get<CacheService>(CacheService);
+    const cache = module.get<CacheInterface>(NodeCacheService);
     const music = module.get<MusicbrainzService>(MusicbrainzService);
     expect(cache).toBeDefined();
     expect(music).toBeDefined();

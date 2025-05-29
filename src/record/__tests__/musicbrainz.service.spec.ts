@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import axios from 'axios';
 import { Logger } from '@nestjs/common';
-import { CacheService } from 'src/shared/cache.service';
 import { MusicbrainzService } from '../musicbrainz.service';
+import { NodeCacheService } from '../../common/cache/node-cache.service';
 
 jest.mock('axios');
 
@@ -24,7 +24,7 @@ const USER_AGENT = `BrokenRecordStore/v1 (test@email.com)`;
 
 describe('MusicbrainzService', () => {
   let service: MusicbrainzService;
-  let cacheService: jest.Mocked<CacheService>;
+  let cacheService: jest.Mocked<NodeCacheService>;
   let loggerErrorSpy: jest.SpyInstance;
   let loggerDebugSpy: jest.SpyInstance;
 

@@ -3,5 +3,6 @@ export class AuthenticatedRequestDto extends Request {
     userId: string;
     email: string;
     role: string;
+    name: string;
   };
 }

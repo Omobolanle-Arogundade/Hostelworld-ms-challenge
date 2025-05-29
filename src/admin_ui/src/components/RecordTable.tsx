@@ -5,6 +5,8 @@ import type { RecordTableProps } from '../lib/types';
 export const RecordTable: React.FC<RecordTableProps> = ({
   records = [],
   onEdit,
+  userRole,
+  onOrder,
 }) => {
   return (
     <div className="overflow-x-auto bg-white shadow rounded-lg">
@@ -29,9 +31,11 @@ export const RecordTable: React.FC<RecordTableProps> = ({
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
               Category
             </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-              Actions
-            </th>
+            {userRole && (
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -65,11 +69,25 @@ export const RecordTable: React.FC<RecordTableProps> = ({
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                   {record.category}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                  <Button onClick={() => onEdit(record)} size="sm">
-                    Edit
-                  </Button>
-                </td>
+                {userRole && (
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    {userRole === 'admin' ? (
+                      <Button
+                        onClick={() => onEdit(record)}
+                        className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Edit
+                      </Button>
+                    ) : userRole === 'user' ? (
+                      <Button
+                        onClick={() => onOrder(record)}
+                        className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+                      >
+                        Order
+                      </Button>
+                    ) : null}
+                  </td>
+                )}
               </tr>
             ))
           )}

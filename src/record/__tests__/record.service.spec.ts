@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { CacheService } from '../../shared/cache.service';
+import { NodeCacheService } from '../../common/cache/node-cache.service';
 import { RecordService } from '../record.service';
 import { RecordRepository } from '../record.repository';
 import { MusicbrainzService } from '../musicbrainz.service';
@@ -17,7 +17,7 @@ const loadFixture = (name: string): Record[] =>
 describe('RecordService', () => {
   let service: RecordService;
   let recordRepo: jest.Mocked<RecordRepository>;
-  let cacheService: jest.Mocked<CacheService>;
+  let cacheService: jest.Mocked<NodeCacheService>;
   let musicbrainzService: jest.Mocked<MusicbrainzService>;
   let loggerDebugSpy: jest.SpyInstance;
   let loggerLogSpy: jest.SpyInstance;
@@ -42,7 +42,7 @@ describe('RecordService', () => {
       fetchTracklistByMbid: jest.fn(),
     } as any;
 
-    service = new RecordService(recordRepo, cacheService, musicbrainzService);
+    service = new RecordService(recordRepo, musicbrainzService, cacheService);
 
     loggerDebugSpy = jest.spyOn(Logger.prototype, 'debug').mockImplementation();
     loggerLogSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation();

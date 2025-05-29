@@ -1,10 +1,10 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RecordRepository } from './record.repository';
 import { FilterRecordsQueryDto } from './dtos/filter-records.query.dto';
 import { PaginatedResponseDto } from '../shared/dtos/paginated-response.dto';
 import { Record } from './record.schema';
 import { UpdateRecordRequestDto } from './dtos/update-record.request.dto';
-import { CacheService } from '../shared/cache.service';
+import { CacheInterface } from '../common/cache/cache.interface';
 import { MusicbrainzService } from './musicbrainz.service';
 import { Types } from 'mongoose';
 import { CreateRecordPayloadDto } from './dtos/create-record.payload.dto';
@@ -15,8 +15,8 @@ export class RecordService {
 
   constructor(
     private readonly recordRepo: RecordRepository,
-    private readonly cacheService: CacheService,
     private readonly musicbrainz: MusicbrainzService,
+    @Inject('CacheInterface') private readonly cacheService: CacheInterface,
   ) {}
 
   /**
@@ -34,7 +34,7 @@ export class RecordService {
     const cacheKey = `records::${JSON.stringify(query)}`;
 
     const cached =
-      this.cacheService.get<PaginatedResponseDto<Record>>(cacheKey);
+      await this.cacheService.get<PaginatedResponseDto<Record>>(cacheKey);
 
     if (cached) {
       this.logger.debug(`Cache hit for query`, ctx);
@@ -55,7 +55,7 @@ export class RecordService {
       },
     };
 
-    this.cacheService.set(cacheKey, result);
+    await this.cacheService.set(cacheKey, result);
 
     return result;
   }
@@ -79,7 +79,7 @@ export class RecordService {
     });
 
     this.logger.log(`Record created successfully with id ${record._id}`, ctx);
-    this.cacheService.clearByPrefix('records::'); // Clear records cache after creation
+    await this.cacheService.clearByPrefix('records::'); // Clear records cache after creation
     return record;
   }
 
@@ -109,7 +109,7 @@ export class RecordService {
 
     await this.recordRepo.update(id, { ...payload, tracklist });
     this.logger.log(`Record updated successfully with id ${id}`, ctx);
-    this.cacheService.clearByPrefix('records::'); // Clear records cache after update
+    await this.cacheService.clearByPrefix('records::'); // Clear records cache after update
     return { ...existing, ...payload, tracklist };
   }
 

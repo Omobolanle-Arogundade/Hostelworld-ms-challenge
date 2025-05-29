@@ -4,20 +4,16 @@ import { RecordController } from './record.controller';
 import { RecordService } from './record.service';
 import { RecordSchema } from './record.schema';
 import { RecordRepository } from './record.repository';
-import { CacheService } from '../shared/cache.service';
 import { MusicbrainzService } from './musicbrainz.service';
+import { CacheModule } from '../common/cache/cache.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Record', schema: RecordSchema }]),
+    CacheModule,
   ],
   controllers: [RecordController],
-  providers: [
-    RecordService,
-    RecordRepository,
-    CacheService,
-    MusicbrainzService,
-  ],
+  providers: [RecordService, RecordRepository, MusicbrainzService],
   exports: [RecordRepository],
 })
 export class RecordModule {}

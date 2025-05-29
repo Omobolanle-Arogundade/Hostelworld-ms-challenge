@@ -29,6 +29,15 @@ describe('OrderService', () => {
         OrderService,
         { provide: OrderRepository, useValue: orderRepo },
         { provide: RecordRepository, useValue: recordRepo },
+        {
+          provide: 'CacheInterface',
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            clearByPrefix: jest.fn(),
+            clearAll: jest.fn(),
+          },
+        },
       ],
     }).compile();
 

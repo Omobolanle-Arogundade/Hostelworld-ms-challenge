@@ -38,6 +38,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
     "fast-xml-parser": "^5.2.3",
+    "ioredis": "^5.6.1",
     "mongoose": "^8.11.0",
     "node-cache": "^5.1.2",
     "passport-jwt": "^4.0.1",
