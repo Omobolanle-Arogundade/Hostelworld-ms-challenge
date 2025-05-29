@@ -22,7 +22,7 @@ export class UserRepository {
    * @returns The found user or null if not found.
    */
   async findByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).exec();
+    return this.userModel.findOne({ email }).lean().exec();
   }
 
   /**
@@ -30,6 +30,6 @@ export class UserRepository {
    * @returns An array of all users.
    */
   async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+    return this.userModel.find().lean().exec();
   }
 }

@@ -37,7 +37,7 @@ export class RecordRepository {
     if (format) filter.format = format;
 
     const [data, total] = await Promise.all([
-      this.recordModel.find(filter).skip(skip).limit(limit).exec(),
+      this.recordModel.find(filter).skip(skip).limit(limit).lean().exec(),
       this.recordModel.countDocuments(filter),
     ]);
 
@@ -64,7 +64,10 @@ export class RecordRepository {
     data: Partial<Record>,
     session?: ClientSession,
   ) {
-    return this.recordModel.updateOne({ _id: id }, data, { session }).exec();
+    return this.recordModel
+      .updateOne({ _id: id }, data, { session })
+      .lean()
+      .exec();
   }
 
   /**
@@ -74,7 +77,7 @@ export class RecordRepository {
    * @returns The record if found, otherwise null
    */
   async findById(id: Types.ObjectId): Promise<Record | null> {
-    return this.recordModel.findById(id).exec();
+    return this.recordModel.findById(id).lean().exec();
   }
 
   /**
@@ -82,6 +85,6 @@ export class RecordRepository {
    * @description This method deletes a record by its ID from the database.
    */
   async delete(id: Types.ObjectId): Promise<Record | null> {
-    return this.recordModel.findByIdAndDelete(id).exec();
+    return this.recordModel.findByIdAndDelete(id).lean().exec();
   }
 }

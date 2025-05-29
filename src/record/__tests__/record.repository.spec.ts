@@ -10,10 +10,14 @@ describe('RecordRepository', () => {
   let repository: RecordRepository;
   let model: jest.Mocked<Model<Record>>;
 
+  const mockExec = jest.fn();
+  const mockLean = jest.fn(() => ({ exec: mockExec }));
+
   const mockQuery = {
     skip: jest.fn().mockReturnThis(),
     limit: jest.fn().mockReturnThis(),
-    exec: jest.fn(),
+    lean: mockLean,
+    exec: mockExec,
   };
 
   beforeEach(async () => {
@@ -21,9 +25,13 @@ describe('RecordRepository', () => {
       find: jest.fn().mockReturnValue(mockQuery),
       countDocuments: jest.fn(),
       create: jest.fn(),
-      updateOne: jest.fn().mockReturnValue({ exec: jest.fn() }),
-      findById: jest.fn().mockReturnValue({ exec: jest.fn() }),
-      findByIdAndDelete: jest.fn().mockReturnValue({ exec: jest.fn() }),
+      updateOne: jest
+        .fn()
+        .mockReturnValue({ lean: () => ({ exec: mockExec }) }),
+      findById: jest.fn().mockReturnValue({ lean: () => ({ exec: mockExec }) }),
+      findByIdAndDelete: jest
+        .fn()
+        .mockReturnValue({ lean: () => ({ exec: mockExec }) }),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -161,7 +169,9 @@ describe('RecordRepository', () => {
       const mockFindQuery = {
         skip: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
-        exec: jest.fn().mockResolvedValueOnce(mockRecords),
+        lean: jest.fn(() => ({
+          exec: jest.fn().mockResolvedValueOnce(mockRecords),
+        })),
       };
 
       model.find.mockReturnValueOnce(mockFindQuery as any);
@@ -199,49 +209,40 @@ describe('RecordRepository', () => {
 
   describe('update', () => {
     it('should call updateOne with given data and session', async () => {
-      const mockExec = jest.fn().mockResolvedValue(true);
       const id = new Types.ObjectId();
-      model.updateOne.mockReturnValueOnce({ exec: mockExec } as any);
+      const data = { artist: 'Updated' };
+      mockExec.mockResolvedValueOnce(true);
 
-      const result = await repository.update(
-        id,
-        { artist: 'Updated' },
-        'session' as any,
-      );
-
-      expect(model.updateOne).toHaveBeenCalledWith(
-        { _id: id },
-        { artist: 'Updated' },
-        { session: 'session' },
-      );
+      const result = await repository.update(id, data, 'session' as any);
+      expect(model.updateOne).toHaveBeenCalledWith({ _id: id }, data, {
+        session: 'session',
+      });
       expect(mockExec).toHaveBeenCalled();
       expect(result).toBe(true);
     });
   });
 
   describe('findById', () => {
-    it('should return a record by ID', async () => {
-      const mockRecord = { artist: 'Some Artist' } as Record;
+    it('returns record by id', async () => {
       const id = new Types.ObjectId();
-      const exec = jest.fn().mockResolvedValueOnce(mockRecord);
-      model.findById.mockReturnValueOnce({ exec } as any);
+      const record = { artist: 'Some Artist' } as Record;
+      mockExec.mockResolvedValueOnce(record);
 
       const result = await repository.findById(id);
+      expect(result).toEqual(record);
       expect(model.findById).toHaveBeenCalledWith(id);
-      expect(result).toBe(mockRecord);
     });
   });
 
   describe('delete', () => {
-    it('should delete and return the record', async () => {
-      const mockRecord = { artist: 'To Delete' } as Record;
+    it('deletes and returns record by id', async () => {
       const id = new Types.ObjectId();
-      const exec = jest.fn().mockResolvedValueOnce(mockRecord);
-      model.findByIdAndDelete.mockReturnValueOnce({ exec } as any);
+      const record = { artist: 'Deleted Artist' } as Record;
+      mockExec.mockResolvedValueOnce(record);
 
       const result = await repository.delete(id);
+      expect(result).toEqual(record);
       expect(model.findByIdAndDelete).toHaveBeenCalledWith(id);
-      expect(result).toBe(mockRecord);
     });
   });
 });

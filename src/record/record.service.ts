@@ -91,7 +91,10 @@ export class RecordService {
    * @throws NotFoundException if the record is not found
    * @throws InternalServerErrorException if there is an error during the update
    */
-  async update(id: Types.ObjectId, payload: UpdateRecordRequestDto) {
+  async update(
+    id: Types.ObjectId,
+    payload: UpdateRecordRequestDto,
+  ): Promise<Partial<Record>> {
     const ctx = `RecordService.update: ${id} - ${JSON.stringify(payload)}`;
     const existing = await this.recordRepo.findById(id);
     if (!existing) {
@@ -107,7 +110,7 @@ export class RecordService {
     await this.recordRepo.update(id, { ...payload, tracklist });
     this.logger.log(`Record updated successfully with id ${id}`, ctx);
     this.cacheService.clearByPrefix('records::'); // Clear records cache after update
-    return { ...existing.toObject(), ...payload, tracklist };
+    return { ...existing, ...payload, tracklist };
   }
 
   /**

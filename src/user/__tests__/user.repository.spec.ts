@@ -40,8 +40,12 @@ describe('UserRepository', () => {
     model = module.get(getModelToken('User'));
 
     // Add mock return types with exec() included
-    (model.findOne as unknown as jest.Mock).mockReturnValue({ exec: execMock });
-    (model.find as unknown as jest.Mock).mockReturnValue({ exec: execMock });
+    (model.findOne as unknown as jest.Mock).mockReturnValue({
+      lean: () => ({ exec: execMock }),
+    });
+    (model.find as unknown as jest.Mock).mockReturnValue({
+      lean: () => ({ exec: execMock }),
+    });
   });
 
   describe('create', () => {

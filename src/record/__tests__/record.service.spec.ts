@@ -275,7 +275,6 @@ describe('RecordService', () => {
         category: 'ROCK',
         tracklist: [],
         mbid: 'bc4baec2-c50b-4958-b2c9-8c184dd6e9d1',
-        toObject: () => ({}),
       };
 
       recordRepo.findById.mockResolvedValue(existingRecord as Record);
@@ -295,8 +294,10 @@ describe('RecordService', () => {
         tracklist,
       });
       expect(result).toEqual({
+        _id: id,
         artist: 'Updated Artist',
         album: 'Updated Album',
+        category: 'ROCK',
         price: 150,
         qty: 20,
         format: 'CD',
@@ -336,7 +337,6 @@ describe('RecordService', () => {
         category: 'ROCK',
         tracklist: existingTracklist,
         mbid: 'bc4baec2-c50b-4958-b2c9-8c184dd6e9d1',
-        toObject: () => ({}),
       };
 
       recordRepo.findById.mockResolvedValue(existingRecord as Record);
@@ -356,11 +356,13 @@ describe('RecordService', () => {
         tracklist: existingTracklist,
       });
       expect(result).toEqual({
+        _id: id,
         artist: 'Updated Artist',
         album: 'Updated Album',
         price: 150,
         qty: 20,
         format: 'CD',
+        category: 'ROCK',
         tracklist: ['Existing Track 1', 'Existing Track 2'],
         mbid: 'bc4baec2-c50b-4958-b2c9-8c184dd6e9d1',
       });
@@ -412,7 +414,6 @@ describe('RecordService', () => {
         qty: 10,
         tracklist: [],
         mbid: 'bc4baec2-c50b-4958-b2c9-8c184dd6e9d0',
-        toObject: () => ({}),
       } as Record);
       recordRepo.update.mockRejectedValue(error);
 
