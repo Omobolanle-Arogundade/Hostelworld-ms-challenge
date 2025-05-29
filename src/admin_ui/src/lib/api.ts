@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type {
   LoginResponse,
+  MostOrderedRecord,
   Order,
   PaginatedResponse,
   RecordItem,
@@ -20,7 +21,11 @@ const api = axios.create({
 });
 
 export const getUser = async (): Promise<UserInfo> => {
-  const response = await api.get<UserInfo>('/auth/me');
+  const response = await api.get<UserInfo>('/auth/me', {
+    headers: {
+      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
+    },
+  });
   return response.data;
 };
 
@@ -55,14 +60,22 @@ export const login = async ({
 export const fetchRecords = async (): Promise<
   PaginatedResponse<RecordItem>
 > => {
-  const response = await api.get<PaginatedResponse<RecordItem>>('/records');
+  const response = await api.get<PaginatedResponse<RecordItem>>('/records', {
+    headers: {
+      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
+    },
+  });
   return response.data;
 };
 
 export const createRecord = async (
   data: Partial<RecordItem>,
 ): Promise<RecordItem> => {
-  const response = await api.post<RecordItem>('/records', data);
+  const response = await api.post<RecordItem>('/records', data, {
+    headers: {
+      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
+    },
+  });
   return response.data;
 };
 
@@ -70,7 +83,11 @@ export const updateRecord = async (
   id: string,
   data: Partial<RecordItem>,
 ): Promise<RecordItem> => {
-  const response = await api.put<RecordItem>(`/records/${id}`, data);
+  const response = await api.put<RecordItem>(`/records/${id}`, data, {
+    headers: {
+      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
+    },
+  });
   return response.data;
 };
 
@@ -79,7 +96,15 @@ export const createOrder = async (
   quantity: number,
 ): Promise<Order> => {
   try {
-    const response = await api.post<Order>(`/orders`, { recordId, quantity });
+    const response = await api.post<Order>(
+      `/orders`,
+      { recordId, quantity },
+      {
+        headers: {
+          Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
+        },
+      },
+    );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -89,4 +114,15 @@ export const createOrder = async (
     }
     throw new Error('Order creation failed');
   }
+};
+
+export const fetchMostOrderedRecords = async (): Promise<
+  MostOrderedRecord[]
+> => {
+  const response = await api.get<MostOrderedRecord[]>('/orders/most-ordered', {
+    headers: {
+      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
+    },
+  });
+  return response.data;
 };

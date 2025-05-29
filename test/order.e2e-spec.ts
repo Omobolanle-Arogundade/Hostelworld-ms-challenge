@@ -105,4 +105,25 @@ describe('RecordController (e2e)', () => {
       expect(response.body.statusCode).toBe(403);
     });
   });
+
+  describe('GET /most-ordered', () => {
+    it('should return most ordered records', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/orders/most-ordered')
+        .set('Authorization', `Bearer ${userAccessToken}`)
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+    });
+
+    it('should allow unauthenticated access to most ordered records', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/orders/most-ordered')
+        .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+    });
+  });
 });

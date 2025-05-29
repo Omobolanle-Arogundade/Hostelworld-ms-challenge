@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { Order } from './order.schema';
+import { MostOrderedRecordsDto } from './dtos/most-ordered-records.dto';
 
 @Injectable()
 export class OrderRepository {
@@ -47,5 +48,45 @@ export class OrderRepository {
     } finally {
       await session.endSession();
     }
+  }
+
+  /**
+   * @returns An array of records that have been ordered the most
+   * @description This method retrieves the records that have been ordered the most.
+   * It aggregates the orders to find the total quantity ordered for each record,
+   * sorts them in descending order, and returns the top records along with their artist and album information.
+   */
+  async getMostOrderedRecords(): Promise<MostOrderedRecordsDto[]> {
+    return this.orderModel.aggregate([
+      {
+        $group: {
+          _id: '$recordId',
+          totalOrdered: { $sum: '$quantity' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'records',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'record',
+        },
+      },
+      {
+        $unwind: '$record',
+      },
+      {
+        $sort: { totalOrdered: -1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          recordId: '$record._id',
+          artist: '$record.artist',
+          album: '$record.album',
+          totalOrdered: 1,
+        },
+      },
+    ]);
   }
 }

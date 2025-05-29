@@ -120,4 +120,41 @@ describe('OrderService', () => {
       );
     });
   });
+
+  describe('fetchMostOrderedRecords', () => {
+    it('should return most ordered records', async () => {
+      const mockRecords = [
+        {
+          recordId: new Types.ObjectId('68356edf297ec83393d3eb97'),
+          totalOrdered: 10,
+          artist: 'Artist A',
+          album: 'Album A',
+        },
+        {
+          recordId: new Types.ObjectId('68356edf297ec83393d3eb98'),
+          totalOrdered: 5,
+          artist: 'Artist B',
+          album: 'Album B',
+        },
+      ];
+
+      orderRepo.getMostOrderedRecords = jest
+        .fn()
+        .mockResolvedValue(mockRecords);
+
+      const result = await service.fetchMostOrderedRecords();
+
+      expect(orderRepo.getMostOrderedRecords).toHaveBeenCalled();
+      expect(result).toEqual(mockRecords);
+    });
+
+    it('should return an empty array if no records found', async () => {
+      orderRepo.getMostOrderedRecords = jest.fn().mockResolvedValue([]);
+
+      const result = await service.fetchMostOrderedRecords();
+
+      expect(orderRepo.getMostOrderedRecords).toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+  });
 });

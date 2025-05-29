@@ -19,15 +19,6 @@ describe('AuthModule', () => {
           provide: UserService,
           useValue: { findByEmail: jest.fn(), validatePassword: jest.fn() },
         },
-        {
-          provide: 'CacheInterface',
-          useValue: {
-            get: jest.fn(),
-            set: jest.fn(),
-            clearByPrefix: jest.fn(),
-            clearAll: jest.fn(),
-          },
-        },
       ],
     }).compile();
   });

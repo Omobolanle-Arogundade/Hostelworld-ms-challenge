@@ -58,6 +58,8 @@ async function setupDatabase() {
 
         const admin = await userModel.findOne({ role: Role.ADMIN });
 
+        const user = await userModel.findOne({ role: Role.USER });
+
         if (!admin) {
           console.error('No admin user found in the seeded data.');
           mongoose.disconnect();
@@ -70,8 +72,26 @@ async function setupDatabase() {
           createdBy: admin._id, // Assigning the admin user as the owner of the orders
         }));
 
-        const records = await recordModel.insertMany(recordsData);
-        console.log(`Inserted ${records.length} records successfully!`);
+        await recordModel.insertMany(recordsData);
+        console.log(`Inserted ${recordsData.length} records successfully!`);
+
+        if (!user) {
+          console.error('No regular user found in the seeded data.');
+          mongoose.disconnect();
+          return;
+        }
+
+        const records = (await recordModel.find().limit(3).lean()) || [];
+
+        await orderModel.insertMany(
+          records.map((record) => {
+            return {
+              recordId: record._id,
+              userId: user._id,
+              quantity: 1,
+            };
+          }),
+        );
 
         mongoose.disconnect();
       },

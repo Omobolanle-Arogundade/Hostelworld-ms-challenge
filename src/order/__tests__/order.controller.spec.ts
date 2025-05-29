@@ -6,6 +6,7 @@ import { Order } from '../order.schema';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthenticatedRequestDto } from '../../shared/dtos/authenticate-request.dto';
 import { Types } from 'mongoose';
+import { MostOrderedRecordsDto } from '../dtos/most-ordered-records.dto';
 
 describe('OrderController', () => {
   let controller: OrderController;
@@ -55,6 +56,47 @@ describe('OrderController', () => {
         userId: req.user.userId,
       });
       expect(result).toBe(mockOrder);
+    });
+  });
+
+  describe('most-ordered', () => {
+    it('should return most ordered records', async () => {
+      const mockMostOrderedRecords = [
+        {
+          recordId: new Types.ObjectId('60d5ec49f1b2c8a3f8e4b0a1'),
+          totalOrdered: 10,
+          artist: 'Artist A',
+          album: 'Album A',
+        },
+        {
+          recordId: new Types.ObjectId('60d5ec49f1b2c8a3f8e4b0a2'),
+          totalOrdered: 5,
+          artist: 'Artist B',
+          album: 'Album b',
+        },
+      ] as MostOrderedRecordsDto[];
+
+      service.fetchMostOrderedRecords = jest
+        .fn()
+        .mockResolvedValue(mockMostOrderedRecords);
+
+      const result = await controller.fetchMostOrderedRecords();
+
+      expect(service.fetchMostOrderedRecords).toHaveBeenCalled();
+      expect(result).toEqual(mockMostOrderedRecords);
+      expect(result.length).toBe(2);
+    });
+
+    it('should return an empty array if no records found', async () => {
+      service.fetchMostOrderedRecords = jest
+        .fn()
+        .mockResolvedValue([] as MostOrderedRecordsDto[]);
+
+      const result = await controller.fetchMostOrderedRecords();
+
+      expect(service.fetchMostOrderedRecords).toHaveBeenCalled();
+      expect(result).toEqual([]);
+      expect(result.length).toBe(0);
     });
   });
 });

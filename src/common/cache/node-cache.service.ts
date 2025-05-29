@@ -14,7 +14,9 @@ export class NodeCacheService implements CacheInterface {
   }
 
   set<T>(key: string, value: T, ttl?: number): void {
-    this.logger.debug(`Setting cache for key: ${key}`);
+    this.logger.debug(
+      `Setting cache for key: ${key} for ${ttl ?? this.stdTTL} seconds`,
+    );
     this.cache.set(key, value, ttl);
   }
 

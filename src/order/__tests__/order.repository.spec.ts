@@ -77,4 +77,67 @@ describe('OrderRepository', () => {
       expect(mockSession.endSession).toHaveBeenCalled();
     });
   });
+
+  describe('getMostOrderedRecords', () => {
+    it('should return most ordered records', async () => {
+      const mockRecords = [
+        {
+          _id: 'record1',
+          totalOrdered: 10,
+          record: { album: 'Album1', artist: 'Artist1' },
+        },
+        {
+          _id: 'record2',
+          totalOrdered: 5,
+          record: { album: 'Album2', artist: 'Artist2' },
+        },
+      ];
+
+      model.aggregate = jest.fn().mockResolvedValue(mockRecords);
+
+      const result = await repository.getMostOrderedRecords();
+
+      expect(model.aggregate).toHaveBeenCalledWith([
+        {
+          $group: {
+            _id: '$recordId',
+            totalOrdered: { $sum: '$quantity' },
+          },
+        },
+        {
+          $lookup: {
+            from: 'records',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'record',
+          },
+        },
+        {
+          $unwind: '$record',
+        },
+        {
+          $sort: { totalOrdered: -1 },
+        },
+        {
+          $project: {
+            _id: 0,
+            recordId: '$record._id',
+            artist: '$record.artist',
+            album: '$record.album',
+            totalOrdered: 1,
+          },
+        },
+      ]);
+      expect(result).toEqual(mockRecords);
+    });
+
+    it('should return an empty array if no records found', async () => {
+      model.aggregate = jest.fn().mockResolvedValue([]);
+
+      const result = await repository.getMostOrderedRecords();
+
+      expect(model.aggregate).toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+  });
 });

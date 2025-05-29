@@ -1,10 +1,3 @@
-export interface MostOrderedRecord {
-  _id: string;
-  artist: string;
-  album: string;
-  orderCount: number;
-}
-
 export interface RecordItem {
   _id: string;
   artist: string;
@@ -60,4 +53,11 @@ export interface Order {
   recordId: string;
   userId: string;
   quantity: number;
+}
+
+export interface MostOrderedRecord {
+  totalOrdered: number;
+  recordId: string;
+  artist: string;
+  album: string;
 }

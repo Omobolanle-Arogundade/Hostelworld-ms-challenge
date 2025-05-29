@@ -11,6 +11,7 @@ import { RecordRepository } from '../record/record.repository';
 import { Types } from 'mongoose';
 import { CreateOrderPayloadDto } from './dtos/create-order-payload.dto';
 import { CacheInterface } from '../common/cache/cache.interface';
+import { MostOrderedRecordsDto } from './dtos/most-ordered-records.dto';
 
 @Injectable()
 export class OrderService {
@@ -70,6 +71,23 @@ export class OrderService {
 
     const order = await this.orderRepo.withTransaction(transactionFn);
     await this.cacheService.clearByPrefix('records::');
+    await this.cacheService.clearByPrefix('mostOrderedRecords');
     return order;
+  }
+
+  async fetchMostOrderedRecords(): Promise<MostOrderedRecordsDto[]> {
+    const cacheKey = 'mostOrderedRecords';
+    const cachedResult =
+      await this.cacheService.get<MostOrderedRecordsDto[]>(cacheKey);
+    if (cachedResult) {
+      this.logger.debug(`Returning cached most ordered records`);
+      return cachedResult;
+    }
+
+    const result = await this.orderRepo.getMostOrderedRecords();
+
+    this.logger.debug(`Fetched most ordered records successfully`);
+    await this.cacheService.set(cacheKey, result);
+    return result;
   }
 }

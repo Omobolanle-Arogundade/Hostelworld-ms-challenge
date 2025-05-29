@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -17,6 +17,8 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../user/enums/role.enum';
 import { AuthenticatedRequestDto } from '../shared/dtos/authenticate-request.dto';
+import { Public } from '../common/decorators/public.decorator';
+import { MostOrderedRecordsDto } from './dtos/most-ordered-records.dto';
 
 @ApiTags('Orders')
 @Controller('orders')
@@ -54,5 +56,19 @@ export class OrderController {
       ...dto,
       userId: req.user['userId'],
     });
+  }
+
+  @UseGuards(CustomThrottlerGuard)
+  @Public()
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Get('most-ordered')
+  @ApiOperation({ summary: 'Fetch most ordered records' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of most ordered records',
+    type: [MostOrderedRecordsDto],
+  })
+  async fetchMostOrderedRecords(): Promise<MostOrderedRecordsDto[]> {
+    return this.orderService.fetchMostOrderedRecords();
   }
 }

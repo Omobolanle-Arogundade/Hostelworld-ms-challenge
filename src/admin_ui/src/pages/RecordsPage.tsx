@@ -5,7 +5,12 @@ import { Button } from '../components/ui/Button';
 import { RecordFormModal } from '../components/RecordFormModal';
 import { RecordTable } from '../components/RecordTable';
 import { LoginModal } from '../components/LoginModal';
-import type { RecordItem, UserInfo, UserRole } from '../lib/types';
+import type {
+  MostOrderedRecord,
+  RecordItem,
+  UserInfo,
+  UserRole,
+} from '../lib/types';
 import { MostOrderedSidebar } from '../components/MostOrderedSidebar';
 import {
   fetchRecords,
@@ -13,6 +18,7 @@ import {
   updateRecord,
   getUser,
   createOrder,
+  fetchMostOrderedRecords,
 } from '../lib/api';
 import { OrderModal } from '../components/OrderModal';
 
@@ -24,6 +30,7 @@ const RecordsPage: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<RecordItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [mostOrdered, setMostOrdered] = useState<MostOrderedRecord[]>([]);
 
   const loadRecords = async () => {
     setLoading(true);
@@ -36,6 +43,16 @@ const RecordsPage: React.FC = () => {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMostOrdered = async () => {
+    try {
+      const mostOrderedData = await fetchMostOrderedRecords();
+      setMostOrdered(mostOrderedData);
+    } catch (error) {
+      console.error('Failed to fetch most ordered records:', error);
+      setMostOrdered([]);
     }
   };
 
@@ -55,6 +72,7 @@ const RecordsPage: React.FC = () => {
 
     checkUser();
     loadRecords();
+    loadMostOrdered();
   }, []);
 
   const isAdmin = user?.role === 'admin';
@@ -115,6 +133,7 @@ const RecordsPage: React.FC = () => {
       );
 
       loadRecords();
+      loadMostOrdered();
       setShowOrderModal(false);
       setSelectedRecord(null);
     } catch (err) {
@@ -126,7 +145,7 @@ const RecordsPage: React.FC = () => {
     <div className="flex flex-col lg:flex-row min-h-screen p-4 gap-4 bg-gray-50">
       <div className="flex-1">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Records</h1>
+          <h1 className="text-2xl font-bold">Broken Record Store</h1>
           {isLoggedIn ? (
             <div className="flex items-center gap-4">
               {isAdmin && (
@@ -169,7 +188,7 @@ const RecordsPage: React.FC = () => {
       </div>
 
       <div className="w-full lg:w-1/3 xl:w-1/4 bg-white p-4 rounded-lg shadow-md h-fit">
-        <MostOrderedSidebar />
+        <MostOrderedSidebar mostOrderedRecords={mostOrdered} />
       </div>
 
       <RecordFormModal

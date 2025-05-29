@@ -14,19 +14,7 @@ import { CacheModule } from '../common/cache/cache.module';
     RecordModule,
     CacheModule,
   ],
-  providers: [
-    OrderService,
-    OrderRepository,
-    {
-      provide: 'CacheInterface',
-      useValue: {
-        get: jest.fn(),
-        set: jest.fn(),
-        clearByPrefix: jest.fn(),
-        clearAll: jest.fn(),
-      },
-    },
-  ],
+  providers: [OrderService, OrderRepository],
   controllers: [OrderController],
 })
 export class OrderModule {}
