@@ -11,24 +11,24 @@ import type {
 const BASE_URL =
   import.meta.env.VITE_API_BASE_URL || process.env.VITE_API_BASE_URL;
 
-console.log('API Base URL:', BASE_URL);
-
-const jwtToken = localStorage.getItem('jwtToken');
-
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
   },
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('jwtToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  console.log('Request config:', config);
+  return config;
+});
+
 export const getUser = async (): Promise<UserInfo> => {
-  const response = await api.get<UserInfo>('/auth/me', {
-    headers: {
-      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
-    },
-  });
+  const response = await api.get<UserInfo>('/auth/me');
   return response.data;
 };
 
@@ -63,22 +63,16 @@ export const login = async ({
 export const fetchRecords = async (): Promise<
   PaginatedResponse<RecordItem>
 > => {
-  const response = await api.get<PaginatedResponse<RecordItem>>('/records', {
-    headers: {
-      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
-    },
-  });
+  const response = await api.get<PaginatedResponse<RecordItem>>(
+    '/records?page=1&limit=100',
+  );
   return response.data;
 };
 
 export const createRecord = async (
   data: Partial<RecordItem>,
 ): Promise<RecordItem> => {
-  const response = await api.post<RecordItem>('/records', data, {
-    headers: {
-      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
-    },
-  });
+  const response = await api.post<RecordItem>('/records', data);
   return response.data;
 };
 
@@ -86,11 +80,7 @@ export const updateRecord = async (
   id: string,
   data: Partial<RecordItem>,
 ): Promise<RecordItem> => {
-  const response = await api.put<RecordItem>(`/records/${id}`, data, {
-    headers: {
-      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
-    },
-  });
+  const response = await api.put<RecordItem>(`/records/${id}`, data, {});
   return response.data;
 };
 
@@ -99,15 +89,7 @@ export const createOrder = async (
   quantity: number,
 ): Promise<Order> => {
   try {
-    const response = await api.post<Order>(
-      `/orders`,
-      { recordId, quantity },
-      {
-        headers: {
-          Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
-        },
-      },
-    );
+    const response = await api.post<Order>(`/orders`, { recordId, quantity });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -122,10 +104,6 @@ export const createOrder = async (
 export const fetchMostOrderedRecords = async (): Promise<
   MostOrderedRecord[]
 > => {
-  const response = await api.get<MostOrderedRecord[]>('/orders/most-ordered', {
-    headers: {
-      Authorization: jwtToken ? `Bearer ${jwtToken}` : '',
-    },
-  });
+  const response = await api.get<MostOrderedRecord[]>('/orders/most-ordered');
   return response.data;
 };

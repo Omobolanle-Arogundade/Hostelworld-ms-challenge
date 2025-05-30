@@ -35,6 +35,7 @@ export const RecordFormModal: React.FC<RecordFormModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubmit) onSubmit(formState);
+    setFormState({});
     onClose();
   };
 

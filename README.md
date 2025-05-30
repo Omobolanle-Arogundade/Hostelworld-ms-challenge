@@ -1,105 +1,183 @@
 # Record Store Challenge API
+
 ## Description
 
-This is a **NestJS** application starter with MongoDB integration. If necessary, it provides a script to boot a Mongo emulator for Docker. This setup includes end-to-end tests, unit tests, test coverage, linting, and database setup with data from `data.json`.
+A scalable NestJS-based API built to manage a record store’s inventory and orders. It supports robust querying, authentication, admin features, and a flexible caching mechanism. The application is production-ready, equipped with unit and end-to-end test suites, linting, and Docker support for local development.
 
-## Installation
+Live API is deployed and accessible here:  
+**https://hostelworld-ms-challenge-976456345277.europe-west1.run.app**
 
-### Install dependencies:
+---
+
+## 🔥 Highlights & Improvements
+
+- **Advanced Query Optimization**: Aggregation pipelines added to improve performance when querying order statistics.
+- **Flexible Caching Layer**: Swappable cache implementation using either NodeCache or Redis. Controlled via environment variables.
+- **Role-based Access Control**: Guards and decorators added to restrict access for non-admin users.
+- **Modular Design**: Separated concerns using modules for auth, records, orders, users, admin_ui, etc.
+- **Static Frontend Support**: admin_ui (Vite-based) can be built and served via ServeStaticModule in Nest.
+- **Comprehensive Error Handling**: Custom exception filters and structured responses.
+- **Observability**: Logs via Nest logger, `/metrics` for Prometheus, and `/api-docs` for Swagger API documentation.
+
+---
+
+## 🛠 Installation
+
+### 1. Install Dependencies
 
 ```bash
-$ npm install
-````
-
-### Docker for MongoDB Emulator
-To use the MongoDB Emulator, you can start it using Docker:
+npm install
 ```
+
+### 2. MongoDB with Docker (For Local Dev)
+
+```bash
 npm run mongo:start
 ```
-This will start a MongoDB instance running on your local machine. You can customize the settings in the Docker setup by modifying the docker-compose-mongo.yml if necessary. In the current configuration, you will have a MongoDB container running, which is accessible at localhost:27017.
-This mongo url will be necessary on the .env file, with example as follows:
+
+This runs MongoDB on localhost:27017. Update your `.env`:
 
 ```
 MONGO_URL=mongodb://localhost:27017/records
 ```
-This will point your application to a local MongoDB instance.
 
-### MongoDB Data Setup
-The data.json file contains example records to seed your database. The setup script will import the records from this file into MongoDB.
+### 3. Setup Database with Seed Data
 
-To set up the database with the example records:
-
-```
+```bash
 npm run setup:db
 ```
-This will prompt the user to cleanup (Y/N) existing collection before importing data.json
 
+This imports `data.json` into the records collection. It will prompt whether to clear existing records.
 
-#### data.json Example
-Here’s an example of the data.json file that contains records:
-```
+**Example data.json record:**
+
+```json
 [
-    {
-        "artist": "Foo Fighters",
-        "album": "Foo Fighers",
-        "price": 8,
-        "qty": 10,
-        "format": "CD",
-        "category": "Rock",
-        "mbid": "d6591261-daaa-4bb2-81b6-544e499da727"
-  },
   {
-        "artist": "The Cure",
-        "album": "Disintegration",
-        "price": 23,
-        "qty": 1,
-        "format": "Vinyl",
-        "category": "Alternative",
-        "mbid": "11af85e2-c272-4c59-a902-47f75141dc97"
-  },
+    "artist": "Foo Fighters",
+    "album": "Foo Fighers",
+    "price": 8,
+    "qty": 10,
+    "format": "CD",
+    "category": "Rock",
+    "mbid": "d6591261-daaa-4bb2-81b6-544e499da727"
+  }
 ]
 ```
 
-### Running the App
-#### Development Mode
-To run the application in development mode (with hot reloading):
+---
 
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the root:
+
+```env
+PORT=3000
+MONGO_URL=mongodb://localhost:27017/records
+CACHE_TYPE=node       # or redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+JWT_SECRET=your-secret-key
 ```
+
+---
+
+## 🚀 Running the App
+
+### Development
+
+```bash
 npm run start:dev
 ```
-#### Production Mode
-To build and run the app in production mode:
 
-```
+### Production
+
+```bash
+npm run build
 npm run start:prod
 ```
 
-### Tests
-#### Run Unit Tests
-To run unit tests:
+---
 
+## 🐳 Docker Support
+
+### Start MongoDB & App
+
+```bash
+docker-compose -f docker-compose-mongo.yml up -d
 ```
+
+---
+
+## 🎛️ Serve Static Admin UI
+
+The Admin UI is built using Vite and stored in `src/admin_ui`.
+
+```bash
+npm run build:ui
+```
+
+Then served automatically by the backend using ServeStaticModule. Accessible at the same URL as the API:
+**https://hostelworld-ms-challenge-976456345277.europe-west1.run.app**
+
+---
+
+## 🧩 API Prefixing
+
+All backend routes are prefixed with `/api` to distinguish from frontend routes.
+
+---
+
+## 🧠 Caching System
+
+The application supports two cache implementations:
+
+- `NodeCache` (default, in-memory, fast, ephemeral)
+- `Redis` (persistent, scalable)
+
+```env
+CACHE_TYPE=redis     # or node
+```
+
+The service injects the appropriate caching provider accordingly.
+
+---
+
+## ✅ Testing
+
+### Unit Tests
+
+```bash
 npm run test
 ```
-To run unit tests with code coverage:
 
-```
+### Coverage
+
+```bash
 npm run test:cov
 ```
-This will show you how much of your code is covered by the unit tests.
-#### Run End-to-End Tests
-To run end-to-end tests:
-```
+
+### End-to-End Tests
+
+```bash
 npm run test:e2e
 ```
-Run Tests with Coverage
 
+### Linting
 
-Run Linting
-To check if your code passes ESLint checks:
-
-```
+```bash
 npm run lint
 ```
-This command will show you any linting issues with your code.
 
+---
+
+## 🧪 Developer Tools
+
+- **Swagger Docs**: [`/swagger`](https://hostelworld-ms-challenge-976456345277.europe-west1.run.app/swagger)
+- **Metrics (Prometheus)**: [`/metrics`](https://hostelworld-ms-challenge-976456345277.europe-west1.run.app/metrics)
+
+---
+
+## 📄 License
+
+MIT
